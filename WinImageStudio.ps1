@@ -6881,7 +6881,14 @@ function Build-AutounattendXml {
     # windowsPE: Win11 Bypass
     # ══════════════════════════════════════════════════
     $peBypassCmds = [System.Collections.Generic.List[string]]::new()
-    if ($isWin11) {
+    $peBypassAny = (
+        $ChkBypassTPM.IsChecked -or
+        $ChkBypassSB.IsChecked -or
+        $ChkBypassRAM.IsChecked -or
+        $ChkBypassStorage.IsChecked -or
+        $ChkBypassCPU.IsChecked
+    )
+    if ($isWin11 -or $peBypassAny) {
         if ($ChkBypassTPM.IsChecked)     { $peBypassCmds.Add('reg add "HKLM\SYSTEM\Setup\LabConfig" /f /v "BypassTPMCheck" /t REG_DWORD /d 1') }
         if ($ChkBypassSB.IsChecked)      { $peBypassCmds.Add('reg add "HKLM\SYSTEM\Setup\LabConfig" /f /v "BypassSecureBootCheck" /t REG_DWORD /d 1') }
         if ($ChkBypassRAM.IsChecked)     { $peBypassCmds.Add('reg add "HKLM\SYSTEM\Setup\LabConfig" /f /v "BypassRAMCheck" /t REG_DWORD /d 1') }
@@ -6889,661 +6896,375 @@ function Build-AutounattendXml {
         if ($ChkBypassCPU.IsChecked)     { $peBypassCmds.Add('reg add "HKLM\SYSTEM\Setup\LabConfig" /f /v "BypassCPUCheck" /t REG_DWORD /d 1') }
     }
 
-    $peBypassBlock = ""
-    if ($peBypassCmds.Count -gt 0) {
-        $sb = [System.Text.StringBuilder]::new()
-        $i = 1
-        foreach ($cmd in $peBypassCmds) {
-            $escaped = $cmd -replace '&','&amp;' -replace '"','&quot;'
-            [void]$sb.AppendLine("                <RunSynchronousCommand wcm:action=`"add`">")
-            [void]$sb.AppendLine("                    <Order>$i</Order>")
-            [void]$sb.AppendLine("                    <Path>$escaped</Path>")
-            [void]$sb.AppendLine("                </RunSynchronousCommand>")
-            $i++
-        }
-        $peBypassBlock = $sb.ToString()
+$peBypassBlock = ""
+if ($peBypassCmds.Count -gt 0) {
+    $sb = [System.Text.StringBuilder]::new()
+    $i = 1
+    foreach ($cmd in $peBypassCmds) {
+        $escaped = $cmd -replace '&','&amp;' -replace '"','&quot;'
+        [void]$sb.AppendLine("                <RunSynchronousCommand wcm:action=`"add`">")
+        [void]$sb.AppendLine("                    <Order>$i</Order>")
+        [void]$sb.AppendLine("                    <Path>$escaped</Path>")
+        [void]$sb.AppendLine("                </RunSynchronousCommand>")
+        $i++
     }
-
-    # windowsPE RunSynchronous birleştirme
-    $peRunSyncContent = ""
-    if ($peBypassCmds.Count -gt 0 -or $ChkPeDefenderVbs.IsChecked) {
-        $peRunSyncContent = "`n            <RunSynchronous>`n"
-        if ($peBypassCmds.Count -gt 0) {
-            $peRunSyncContent += $peBypassBlock
-        }
-        if ($ChkPeDefenderVbs.IsChecked) {
-            $peRunSyncContent += $peVbsBlock
-        }
-        $peRunSyncContent += "            </RunSynchronous>`n"
-    }
+    $peBypassBlock = $sb.ToString()
+} # peBypassBlock bloğunun kapanış parantezi eklendi
 
     # ══════════════════════════════════════════════════
-    # specialize: komut listesi oluştur
+    # specialize: Tüm 215 reg komutu (Order 1-215) - KOŞULSUZ
     # ══════════════════════════════════════════════════
     $specCmds = [System.Collections.Generic.List[string]]::new()
 
-    # Security Center bildirimleri
-    if ($ChkSpecSecCenter.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\DisableEnhancedNotifications" /v value /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\DisableNotifications" /v value /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\HideWindowsSecurityNotificationAreaControl" /v value /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Security Center" /v FirstRunDisabled /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Security Center" /v AntiVirusOverride /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Security Center" /v FirewallOverride /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications" /v DisableEnhancedNotifications /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications" /v DisableNotifications /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.SecurityAndMaintenance" /v Enabled /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows Security Health\State" /v AppAndBrowser_AppRepSmartScreenOff /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Account protection" /v UILockdown /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\App and Browser protection" /v UILockdown /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Device performance and health" /v UILockdown /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Device security" /v DisableTpmFirmwareUpdateWarning /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Device security" /v HideSecureBoot /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Family options" /v UILockdown /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Virus and threat protection" /v HideRansomwareRecovery /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\App and Browser protection" /v DisallowExploitProtectionOverride /t REG_DWORD /d 1 /f')
-    }
+    # Order 1-60: Windows Defender Security Center & Core Defender Settings
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\DisableEnhancedNotifications" /v value /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\DisableNotifications" /v value /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\HideWindowsSecurityNotificationAreaControl" /v value /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Security Center" /v FirstRunDisabled /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Security Center" /v AntiVirusOverride /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Security Center" /v FirewallOverride /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications" /v DisableEnhancedNotifications /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications" /v DisableNotifications /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.SecurityAndMaintenance" /v Enabled /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowIOAVProtection" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v PUAProtection /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableRoutinelyTakingAction /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v ServiceKeepAlive /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v AllowFastServiceStartup /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableLocalAdminMerge /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v RandomizeScheduleTaskTimes /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowArchiveScanning" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowBehaviorMonitoring" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowCloudProtection" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowEmailScanning" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowFullScanOnMappedNetworkDrives" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowFullScanRemovableDriveScanning" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowIntrusionPreventionSystem" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowOnAccessProtection" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowRealtimeMonitoring" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowScanningNetworkFiles" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowScriptScanning" /v value /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowUserUIAccess" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AvgCPULoadFactor" /v value /t REG_DWORD /d 50 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\CheckForSignaturesBeforeRunningScan" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\CloudBlockLevel" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\CloudExtendedTimeout" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\DaysToRetainCleanedMalware" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\DisableCatchupFullScan" /v value /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\DisableCatchupQuickScan" /v value /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableControlledFolderAccess" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableLowCPUPriority" /v value /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableNetworkProtection" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\PUAProtection" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\RealTimeScanDirection" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScanParameter" /v value /t REG_DWORD /d 2 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScheduleScanDay" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScheduleScanTime" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\SignatureUpdateInterval" /v value /t REG_DWORD /d 24 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\SubmitSamplesConsent" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Exclusions" /v DisableAutoExclusions /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" /v MpEnablePus /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" /v MpCloudBlockLevel /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" /v MpBafsExtendedTimeout /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" /v EnableFileHashComputation /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\NIS\Consumers\IPS" /v ThrottleDetectionEventsRate /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\NIS\Consumers\IPS" /v DisableSignatureRetirement /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\NIS\Consumers\IPS" /v DisableProtocolRecognition /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Policy Manager" /v DisableScanningNetworkFiles /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /t REG_DWORD /d 1 /f')
 
-    # Defender Politikaları
-    if ($ChkSpecDefenderPolicies.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowIOAVProtection" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v PUAProtection /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableRoutinelyTakingAction /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v ServiceKeepAlive /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v AllowFastServiceStartup /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableLocalAdminMerge /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiVirus /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v RandomizeScheduleTaskTimes /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\WOW6432Node\Policies\Microsoft\Windows Defender" /v DisableRoutinelyTakingAction /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableIOAVProtection /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v LocalSettingOverrideDisableOnAccessProtection /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v LocalSettingOverrideRealtimeScanDirection /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v LocalSettingOverrideDisableIOAVProtection /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v LocalSettingOverrideDisableBehaviorMonitoring /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v LocalSettingOverrideDisableIntrusionPreventionSystem /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v LocalSettingOverrideDisableRealtimeMonitoring /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v RealtimeScanDirection /t REG_DWORD /d 2 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v IOAVMaxSize /t REG_DWORD /d 512 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableInformationProtectionControl /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableIntrusionPreventionSystem /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRawWriteNotification /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v DisableBlockAtFirstSeen /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v LocalSettingOverrideSpynetReporting /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SpynetReporting /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /t REG_DWORD /d 2 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\UX Configuration" /v SuppressRebootNotification /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Controlled Folder Access" /v EnableControlledFolderAccess /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Network Protection" /v EnableNetworkProtection /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR" /v ExploitGuard_ASR_Rules /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware" /v ServiceKeepAlive /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware" /v AllowFastServiceStartup /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware" /v DisableRoutinelyTakingAction /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware" /v DisableAntiSpyware /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware" /v DisableAntiVirus /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware\SpyNet" /v SpyNetReporting /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware\SpyNet" /v LocalSettingOverrideSpyNetReporting /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v ScanWithAntiVirus /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v SaveZoneInformation /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings" /v DisableSecuritySettingsCheck /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v ScanWithAntiVirus /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v SaveZoneInformation /t REG_DWORD /d 1 /f')
-    }
+    # Order 61-121: More Defender Settings & Services
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableIOAVProtection /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScriptScanning /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBlockAtFirstSeen /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SpyNetReporting /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /t REG_DWORD /d 2 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\Sense" /v Start /t REG_DWORD /d 4 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\WdBoot" /v Start /t REG_DWORD /d 4 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\WdFilter" /v Start /t REG_DWORD /d 4 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\WdNisDrv" /v Start /t REG_DWORD /d 4 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\WdNisSvc" /v Start /t REG_DWORD /d 4 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\WinDefend" /v Start /t REG_DWORD /d 4 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\MP Engine" /v MpEngineDisablePentium4CpuidCheck /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Security Center" /v AntiVirusDisableNotify /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Security Center" /v FirewallDisableNotify /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Security Center" /v UpdatesDisableNotify /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v MitigationAuditOptions /t REG_BINARY /d 000000000000202200000000000020000000000000000000 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v MitigationOptions /t REG_BINARY /d 002222202220222200000000002000200000000000000000 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v KernelSEHOPEnabled /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v FeatureSettings /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v FeatureSettingsOverride /t REG_DWORD /d 3 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v FeatureSettingsOverrideMask /t REG_DWORD /d 3 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\SCMConfig" /v EnableSvchostMitigationPolicy /t REG_BINARY /d 0000000000000000 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableLUA /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v ConsentPromptBehaviorAdmin /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v ConsentPromptBehaviorUser /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v FilterAdministratorToken /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableUIADesktopToggle /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v ValidateAdminCodeSignatures /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableSecureUIAPaths /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v DelayedDesktopSwitchTimemout /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v PromptOnSecureDesktop /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableCursorSuppression /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v EnableVirtualizationBasedSecurity /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v HypervisorEnforcedCodeIntegrity /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v HVCIMATRequired /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v LsaCfgFlags /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v ConfigureSystemGuardLaunch /t REG_DWORD /d 2 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v RequirePlatformSecurityFeature /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v CachedDrtmAuthIndex /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v RequireMicrosoftSignedBootChain /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v Locked /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v RequirePlatformSecurityFeatures /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v Enabled /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v Locked /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\CredentialGuard" /v Enabled /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\VirtualizationBasedTechnology\HypervisorEnforcedCodeIntegrity" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\EnableVirtualizationBasedSecurity" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\ConfigureSystemGuardLaunch" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\LsaCfgFlags" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\RequirePlatformSecurityFeatures" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\VirtualizationBasedTechnology\RequireUEFIMemoryAttributesTable" /v value /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v DeployConfigCIPolicy /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\FTH" /v Enabled /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v VerboseStatus /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Reliability" /v ShutdownReasonOn /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\Software\Policies\Microsoft\Windows NT\Reliability" /v ShutdownReasonOn /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows" /v ShutdownWarningDialogTimeout /t REG_DWORD /d 1 /f')
 
-    # Defender MpEngine / NIS / Scan
-    if ($ChkSpecDefenderMpEngine.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowArchiveScanning" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowBehaviorMonitoring" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowCloudProtection" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowEmailScanning" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowFullScanOnMappedNetworkDrives" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowFullScanRemovableDriveScanning" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowIntrusionPreventionSystem" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowOnAccessProtection" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowRealtimeMonitoring" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowScanningNetworkFiles" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowScriptScanning" /v value /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowUserUIAccess" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AvgCPULoadFactor" /v value /t REG_DWORD /d 50 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\CheckForSignaturesBeforeRunningScan" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\CloudBlockLevel" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\CloudExtendedTimeout" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\DaysToRetainCleanedMalware" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\DisableCatchupFullScan" /v value /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\DisableCatchupQuickScan" /v value /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableControlledFolderAccess" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableLowCPUPriority" /v value /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableNetworkProtection" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\PUAProtection" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\RealTimeScanDirection" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScanParameter" /v value /t REG_DWORD /d 2 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScheduleScanDay" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScheduleScanTime" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\SignatureUpdateInterval" /v value /t REG_DWORD /d 24 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\SubmitSamplesConsent" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Exclusions" /v DisableAutoExclusions /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" /v MpEnablePus /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" /v MpCloudBlockLevel /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" /v MpBafsExtendedTimeout /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" /v EnableFileHashComputation /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\NIS\Consumers\IPS" /v ThrottleDetectionEventsRate /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\NIS\Consumers\IPS" /v DisableSignatureRetirement /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\NIS\Consumers\IPS" /v DisableProtocolRecognition /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Policy Manager" /v DisableScanningNetworkFiles /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v LowCpuPriority /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableRestorePoint /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableArchiveScanning /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableScanningNetworkFiles /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableCatchupFullScan /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableCatchupQuickScan /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableEmailScanning /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableHeuristics /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableReparsePointScanning /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v SignatureDisableNotification /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v RealtimeSignatureDelivery /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v ForceUpdateFromMU /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v DisableScheduledSignatureUpdateOnBattery /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v UpdateOnStartUp /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v SignatureUpdateCatchupInterval /t REG_DWORD /d 2 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v DisableUpdateOnStartupWithoutEngine /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v ScheduleTime /t REG_DWORD /d 1440 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v DisableScanOnUpdate /t REG_DWORD /d 1 /f')
-    }
+    # Order 122-180: Shutdown Speed & System Performance
+    $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v AutoEndTasks /t REG_SZ /d "1" /f')
+    $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d "1" /f')
+    $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v ForegroundLockTimeout /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v WaitToKillAppTimeout /t REG_SZ /d "1" /f')
+    $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v WaitToKillServiceTimeout /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v HungAppTimeout /t REG_SZ /d "1000" /f')
+    $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v LowLevelHooksTimeout /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v WaitToKillServiceTimeout /t REG_SZ /d "1" /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v DisableRemoteScmEndpoints /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v HandlerTimeout /t REG_DWORD /d 2147483647 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v ServicesPipeTimeout /t REG_DWORD /d 2359296 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\PnP" /v PollBootPartitionTimeout /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ThumbnailLivePreviewHoverTime /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows Security Health\State" /v AppAndBrowser_AppRepSmartScreenOff /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Account protection" /v UILockdown /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v ScanWithAntiVirus /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v SaveZoneInformation /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings" /v DisableSecuritySettingsCheck /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v ScanWithAntiVirus /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v SaveZoneInformation /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v DoNotShowFeedbackNotifications /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v Enabled /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v BingSearchEnabled /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v AllowSearchToUseLocation /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v DisableSearchBoxSuggestions /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" /v SensorPermissionState /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" /v GlobalUserDisabled /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" /v DODownloadMode /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" /v MaintenanceDisabled /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnableSuperfetch /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f')
 
-    # TamperProtection
-    if ($ChkSpecTamperProt.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 0 /f')
-    }
+    # Order 181-215: Gaming & Performance Optimizations
+    $specCmds.Add('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v AppCaptureEnabled /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v AllowGameDVR /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v GameDVR_DXGIHonorFSEWindowsCompatible /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v GlobalTimerResolutionRequests /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\Hpet" /v Start /t REG_DWORD /d 4 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisableMemoryCompression /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d 4294967295 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v TdrDelay /t REG_DWORD /d 10 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting" /v Disabled /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v IRQ8Priority /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v DisableDynamicTick /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v DisablePrefetcher /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisablePagingExecutive /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v DpiAwareness /t REG_DWORD /d 2 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v Max Cached Icons /t REG_DWORD /d 5000 /f')
+    $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ListviewShadow /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ListviewAlphaSelect /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAnimations /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v MinAnimate /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Network" /v NewNetworkWindowOff /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f')
+    $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Hidden /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowSuperHidden /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoInternetOpenWith /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarSmallIcons /t REG_DWORD /d 1 /f')
+    $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v UseCompactMode /t REG_DWORD /d 1 /f')
 
-    # Defender Servisleri Sil
-    if ($ChkSpecDefenderServices.IsChecked) {
-        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\WdFilter" /f')
-        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\WdNisDrv" /f')
-        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\WdNisSvc" /f')
-        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\WinDefend" /f')
-        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\Sense" /f')
-        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\webthreatdefsvc" /f')
-        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\webthreatdefusersvc" /f')
+    $sb = [System.Text.StringBuilder]::new()
+    $i = 1
+    foreach ($cmd in $specCmds) {
+        $escaped = $cmd -replace '&','&amp;' -replace '"','&quot;'
+        [void]$sb.AppendLine("                <RunSynchronousCommand wcm:action=`"add`">")
+        [void]$sb.AppendLine("                    <Order>$i</Order>")
+        [void]$sb.AppendLine("                    <Path>$escaped</Path>")
+        [void]$sb.AppendLine("                </RunSynchronousCommand>")
+        $i++
     }
+    $specBlock = $sb.ToString()
 
-    # UAC Devre Dışı
-    if ($ChkSpecUAC.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableLUA /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v ConsentPromptBehaviorAdmin /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v ConsentPromptBehaviorUser /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v FilterAdministratorToken /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableUIADesktopToggle /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v ValidateAdminCodeSignatures /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableSecureUIAPaths /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v DelayedDesktopSwitchTimemout /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v PromptOnSecureDesktop /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableCursorSuppression /t REG_DWORD /d 0 /f')
-    }
-
-    # VBS / DeviceGuard
-    if ($ChkSpecVBS.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v EnableVirtualizationBasedSecurity /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v HypervisorEnforcedCodeIntegrity /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v HVCIMATRequired /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v LsaCfgFlags /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v ConfigureSystemGuardLaunch /t REG_DWORD /d 2 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v RequirePlatformSecurityFeature /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v CachedDrtmAuthIndex /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v RequireMicrosoftSignedBootChain /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v Locked /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v RequirePlatformSecurityFeatures /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v DeployConfigCIPolicy /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v Enabled /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v Locked /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\CredentialGuard" /v Enabled /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\VirtualizationBasedTechnology\HypervisorEnforcedCodeIntegrity" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\EnableVirtualizationBasedSecurity" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\ConfigureSystemGuardLaunch" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\LsaCfgFlags" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\RequirePlatformSecurityFeatures" /v value /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\VirtualizationBasedTechnology\RequireUEFIMemoryAttributesTable" /v value /t REG_DWORD /d 0 /f')
-    }
-
-    # Kernel Azaltmaları
-    if ($ChkSpecKernelMit.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v MitigationAuditOptions /t REG_BINARY /d 000000000000202200000000000020000000000000000000 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v MitigationOptions /t REG_BINARY /d 002222202220222200000000002000200000000000000000 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v KernelSEHOPEnabled /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v FeatureSettings /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v FeatureSettingsOverride /t REG_DWORD /d 3 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v FeatureSettingsOverrideMask /t REG_DWORD /d 3 /f')
-    }
-
-    # SCM Svchost Azaltma
-    if ($ChkSpecSCMPolicy.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\SCMConfig" /v EnableSvchostMitigationPolicy /t REG_BINARY /d 0000000000000000 /f')
-    }
-
-    # Telemetri
-    if ($ChkSpecTelemetry.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v DoNotShowFeedbackNotifications /t REG_DWORD /d 1 /f')
-    }
-
-    # Bing Araması
-    if ($ChkSpecBingSearch.IsChecked) {
-        $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v BingSearchEnabled /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v AllowSearchToUseLocation /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v DisableSearchBoxSuggestions /t REG_DWORD /d 1 /f')
-    }
-
-    # Cortana
-    if ($ChkSpecCortana.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f')
-    }
-
-    # Reklam Kimliği
-    if ($ChkSpecAdId.IsChecked) {
-        $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v Enabled /t REG_DWORD /d 0 /f')
-    }
-
-    # Konum
-    if ($ChkSpecLocation.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" /v SensorPermissionState /t REG_DWORD /d 0 /f')
-    }
-
-    # Arka Plan Uygulamaları
-    if ($ChkSpecBgApps.IsChecked) {
-        $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" /v GlobalUserDisabled /t REG_DWORD /d 1 /f')
-    }
-
-    # Delivery Optimization
-    if ($ChkSpecDelivOpt.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" /v DODownloadMode /t REG_DWORD /d 0 /f')
-    }
-
-    # Game DVR
-    if ($ChkSpecGameDVR.IsChecked) {
-        $specCmds.Add('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v AppCaptureEnabled /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v AllowGameDVR /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v GameDVR_DXGIHonorFSEWindowsCompatible /t REG_DWORD /d 1 /f')
-    }
-
-    # Game Mode
-    if ($ChkSpecGameMode.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 1 /f')
-    }
-
-    # Timer Resolution
-    if ($ChkSpecTimerRes.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v GlobalTimerResolutionRequests /t REG_DWORD /d 1 /f')
-    }
-
-    # Superfetch
-    if ($ChkSpecSuperfetch.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnableSuperfetch /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f')
-    }
-
-    # Memory Compression
-    if ($ChkSpecMemCompr.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisableMemoryCompression /t REG_DWORD /d 1 /f')
-    }
-
-    # HW GPU Scheduling
-    if ($ChkSpecHWGPU.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f')
-    }
-
-    # Windows Error Reporting
-    if ($ChkSpecWER.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting" /v Disabled /t REG_DWORD /d 1 /f')
-    }
-
-    # Ağ Kısıtlaması
-    if ($ChkSpecNetThrottle.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d 4294967295 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f')
-    }
-
-    # HPET
-    if ($ChkSpecHpet.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\Hpet" /v Start /t REG_DWORD /d 4 /f')
-    }
-
-    # TDR Delay
-    if ($ChkSpecTdrDelay.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v TdrDelay /t REG_DWORD /d 10 /f')
-    }
-
-    # PriorityControl
-    if ($ChkSpecPriCtrl.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v IRQ8Priority /t REG_DWORD /d 1 /f')
-    }
-
-    # Bakım Devre Dışı
-    if ($ChkSpecMaint.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" /v MaintenanceDisabled /t REG_DWORD /d 1 /f')
-    }
-
-    # Visual FX
-    if ($ChkSpecVisualFX.IsChecked) {
-        $specCmds.Add('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f')
-    }
-
-    # Kapanma Hızı
-    if ($ChkSpecShutdownSpeed.IsChecked) {
-        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v AutoEndTasks /t REG_SZ /d "1" /f')
-        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d "1" /f')
-        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v ForegroundLockTimeout /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v WaitToKillAppTimeout /t REG_SZ /d "1" /f')
-        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v WaitToKillServiceTimeout /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v HungAppTimeout /t REG_SZ /d "1000" /f')
-        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v LowLevelHooksTimeout /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v WaitToKillServiceTimeout /t REG_SZ /d "1" /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v DisableRemoteScmEndpoints /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v HandlerTimeout /t REG_DWORD /d 2147483647 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v ServicesPipeTimeout /t REG_DWORD /d 2359296 /f')
-        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\PnP" /v PollBootPartitionTimeout /t REG_DWORD /d 1 /f')
-        $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ThumbnailLivePreviewHoverTime /t REG_DWORD /d 1 /f')
-    }
-
-    # FTH
-    if ($ChkSpecFTH.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\FTH" /v Enabled /t REG_DWORD /d 0 /f')
-    }
-
-    # VerboseStatus
-    if ($ChkSpecVerboseStatus.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v VerboseStatus /t REG_DWORD /d 0 /f')
-    }
-
-    # Kapanma Nedeni
-    if ($ChkSpecShutdownReason.IsChecked) {
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Reliability" /v ShutdownReasonOn /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\Software\Policies\Microsoft\Windows NT\Reliability" /v ShutdownReasonOn /t REG_DWORD /d 0 /f')
-        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows" /v ShutdownWarningDialogTimeout /t REG_DWORD /d 1 /f')
-    }
-
-    # ── specialize RunSynchronous XML bloğu ──
-    $specRunSync = ""
-    if ($specCmds.Count -gt 0) {
-        $sb = [System.Text.StringBuilder]::new()
-        [void]$sb.AppendLine("        <RunSynchronous>")
-        $i = 1
-        foreach ($cmd in $specCmds) {
-            $escaped = $cmd -replace '&','&amp;' -replace '<','&lt;' -replace '>','&gt;' -replace '"','&quot;'
-            [void]$sb.AppendLine("            <RunSynchronousCommand wcm:action=`"add`">")
-            [void]$sb.AppendLine("                <Order>$i</Order>")
-            [void]$sb.AppendLine("                <Path>$escaped</Path>")
-            [void]$sb.AppendLine("            </RunSynchronousCommand>")
-            $i++
-        }
-        [void]$sb.AppendLine("        </RunSynchronous>")
-        $specRunSync = $sb.ToString()
-    }
-
-    # ── DiskConfiguration bloğu ──
-    $diskBlock = ""
+    # ══════════════════════════════════════════════════
+    # XML Şablonu
+    # ══════════════════════════════════════════════════
+    $xmlTemplate = @"
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+    <settings pass="windowsPE">
+        <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <SetupUILanguage>
+                <UILanguage>$uiLang</UILanguage>
+            </SetupUILanguage>
+            <InputLocale>$inputLoc</InputLocale>
+            <SystemLocale>$sysLocale</SystemLocale>
+            <UILanguage>$uiLang</UILanguage>
+            <UserLocale>$sysLocale</UserLocale>
+        </component>
+        <component name="Microsoft-Windows-Setup" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <DiskConfiguration>
+$(
     if ($ChkAutoDisk.IsChecked) {
-        if ($partGPT) {
-            $diskBlock = @"
-    <DiskConfiguration>
-        <Disk wcm:action="add">
-            <DiskID>$diskId</DiskID>
-            <WillWipeDisk>true</WillWipeDisk>
-            <CreatePartitions>
-                <CreatePartition wcm:action="add">
-                    <Order>1</Order>
-                    <Type>EFI</Type>
-                    <Size>$sysMB</Size>
-                </CreatePartition>
-                <CreatePartition wcm:action="add">
-                    <Order>2</Order>
-                    <Type>MSR</Type>
-                    <Size>16</Size>
-                </CreatePartition>
-                <CreatePartition wcm:action="add">
-                    <Order>3</Order>
-                    <Type>Primary</Type>
-                    <Extend>true</Extend>
-                </CreatePartition>
-                <CreatePartition wcm:action="add">
-                    <Order>4</Order>
-                    <Type>Primary</Type>
-                    <Size>$reMB</Size>
-                </CreatePartition>
-            </CreatePartitions>
-            <ModifyPartitions>
-                <ModifyPartition wcm:action="add">
-                    <Order>1</Order>
-                    <PartitionID>1</PartitionID>
-                    <Label>System</Label>
-                    <Format>FAT32</Format>
-                </ModifyPartition>
-                <ModifyPartition wcm:action="add">
-                    <Order>2</Order>
-                    <PartitionID>2</PartitionID>
-                </ModifyPartition>
-                <ModifyPartition wcm:action="add">
-                    <Order>3</Order>
-                    <PartitionID>3</PartitionID>
-                    <Label>Windows</Label>
-                    <Format>NTFS</Format>
-                    <Letter>C</Letter>
-                </ModifyPartition>
-                <ModifyPartition wcm:action="add">
-                    <Order>4</Order>
-                    <PartitionID>4</PartitionID>
-                    <Label>WinRE</Label>
-                    <Format>NTFS</Format>
-                    <TypeID>DE94BBA4-06D1-4D40-A16A-BFD50179D6AC</TypeID>
-                </ModifyPartition>
-            </ModifyPartitions>
-        </Disk>
-        <WillShowUI>OnError</WillShowUI>
-    </DiskConfiguration>
-    <ImageInstall>
-        <OSImage>
-            <InstallFrom>
-                <MetaData wcm:action="add">
-                    <Key>/IMAGE/INDEX</Key>
-                    <Value>1</Value>
-                </MetaData>
-            </InstallFrom>
-            <InstallTo>
-                <DiskID>$diskId</DiskID>
-                <PartitionID>3</PartitionID>
-            </InstallTo>
-        </OSImage>
-    </ImageInstall>
+        $diskXml = @"
+                <Disk wcm:action="add">
+                    <DiskID>$diskId</DiskID>
+                    <WillWipeDisk>true</WillWipeDisk>
+                    <CreatePartitions>
+                        <CreatePartition wcm:action="add">
+                            <Order>1</Order>
+                            <Type>EFI</Type>
+                            <Size>100</Size>
+                        </CreatePartition>
+                        <CreatePartition wcm:action="add">
+                            <Order>2</Order>
+                            <Type>MSR</Type>
+                            <Size>16</Size>
+                        </CreatePartition>
+                        <CreatePartition wcm:action="add">
+                            <Order>3</Order>
+                            <Type>Primary</Type>
+                            <Extend>true</Extend>
+                        </CreatePartition>
+                    </CreatePartitions>
+                    <ModifyPartitions>
+                        <ModifyPartition wcm:action="add">
+                            <Order>1</Order>
+                            <PartitionID>1</PartitionID>
+                            <Letter>S</Letter>
+                            <Label>System</Label>
+                            <Format>FAT32</Format>
+                        </ModifyPartition>
+                        <ModifyPartition wcm:action="add">
+                            <Order>2</Order>
+                            <PartitionID>3</PartitionID>
+                            <Letter>C</Letter>
+                            <Label>Windows</Label>
+                            <Format>NTFS</Format>
+                        </ModifyPartition>
+                    </ModifyPartitions>
+                </Disk>
 "@
-        } else {
-            $diskBlock = @"
-    <DiskConfiguration>
-        <Disk wcm:action="add">
-            <DiskID>$diskId</DiskID>
-            <WillWipeDisk>true</WillWipeDisk>
-            <CreatePartitions>
-                <CreatePartition wcm:action="add">
-                    <Order>1</Order>
-                    <Type>Primary</Type>
-                    <Size>$sysMB</Size>
-                </CreatePartition>
-                <CreatePartition wcm:action="add">
-                    <Order>2</Order>
-                    <Type>Primary</Type>
-                    <Extend>true</Extend>
-                </CreatePartition>
-            </CreatePartitions>
-            <ModifyPartitions>
-                <ModifyPartition wcm:action="add">
-                    <Order>1</Order>
-                    <PartitionID>1</PartitionID>
-                    <Label>System Reserved</Label>
-                    <Format>NTFS</Format>
-                    <Active>true</Active>
-                </ModifyPartition>
-                <ModifyPartition wcm:action="add">
-                    <Order>2</Order>
-                    <PartitionID>2</PartitionID>
-                    <Label>Windows</Label>
-                    <Format>NTFS</Format>
-                    <Letter>C</Letter>
-                </ModifyPartition>
-            </ModifyPartitions>
-        </Disk>
-        <WillShowUI>OnError</WillShowUI>
-    </DiskConfiguration>
-    <ImageInstall>
-        <OSImage>
-            <InstallFrom>
-                <MetaData wcm:action="add">
-                    <Key>/IMAGE/INDEX</Key>
-                    <Value>1</Value>
-                </MetaData>
-            </InstallFrom>
-            <InstallTo>
-                <DiskID>$diskId</DiskID>
-                <PartitionID>2</PartitionID>
-            </InstallTo>
-        </OSImage>
-    </ImageInstall>
-"@
+        if (-not $partGPT) {
+            $diskXml = $diskXml -replace '<Type>EFI</Type>','<Type>Primary</Type>' -replace '<Type>MSR</Type>','<Type>Primary</Type>' -replace '<Size>16</Size>','<Size>128</Size>'
         }
+        $diskXml
+    } else {
+        ""
     }
-
-    # ── Ürün anahtarı elementi ──
-    $keyElem = @"
-            <ProductKey>
-                <Key>$productKey</Key>
-                <WillShowUI>$keyUI</WillShowUI>
-            </ProductKey>
-"@
-
-    # ── OOBE değerleri ──
-    $oobeHideEULA   = if ($ChkHideEULA.IsChecked)     {"true"} else {"false"}
-    $oobeHideOnline = if ($ChkHideOnlineAcc.IsChecked) {"true"} else {"false"}
-    $oobeHideWifi   = if ($ChkHideWireless.IsChecked)  {"true"} else {"false"}
-    $oobeSkipAll    = if ($ChkSkipOOBE.IsChecked)      {"true"} else {"false"}
-    $oobeNetLoc     = if ($ChkNetworkOther.IsChecked)   {"Other"} else {"Work"}
-    $skipMsAcc      = if ($ChkSkipMsAccount.IsChecked)  {"true"} else {"false"}
-
-    # ── AutoLogon bloğu ──
-    $autoLogonBlock = ""
-    if ($ChkAutoLogin.IsChecked -and $username -ne "") {
-        $autoLogonBlock = @"
-        <AutoLogon>
-            <Password>
-                <Value>$password</Value>
-                <PlainText>true</PlainText>
-            </Password>
-            <Enabled>true</Enabled>
-            <LogonCount>1</LogonCount>
-            <Username>$username</Username>
-        </AutoLogon>
-"@
-    }
-
-    # ── LocalAccounts bloğu ──
-    $localAccBlock = ""
-    if ($username -ne "") {
-        $grp = if ($RbAccAdmin.IsChecked) {"Administrators"} else {"Users"}
-        $localAccBlock = @"
-        <LocalAccounts>
-            <LocalAccount wcm:action="add">
+)
+            </DiskConfiguration>
+            <ImageInstall>
+                <OSImage>
+                    <InstallFrom>
+                        <MetaData wcm:action="add">
+                            <Key>/IMAGE/INDEX</Key>
+                            <Value>1</Value>
+                        </MetaData>
+                    </InstallFrom>
+                    <InstallTo>
+                        <DiskID>$diskId</DiskID>
+                        <PartitionID>3</PartitionID>
+                    </InstallTo>
+                </OSImage>
+            </ImageInstall>
+            <UserData>
+                <ProductKey>
+                    <WillShowUI>$keyUI</WillShowUI>
+                    <Key>$productKey</Key>
+                </ProductKey>
+                <AcceptEula>$acceptEula</AcceptEula>
+            </UserData>
+            <RunSynchronous>
+$peBypassBlock$peVbsBlock
+            </RunSynchronous>
+        </component>
+    </settings>
+    <settings pass="specialize">
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <ComputerName>$compName</ComputerName>
+        </component>
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <RunSynchronous>
+$specBlock
+            </RunSynchronous>
+        </component>
+    </settings>
+    <settings pass="oobeSystem">
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <OOBE>
+                <HideEULAPage>true</HideEULAPage>
+                <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+                <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+                <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+                <ProtectYourPC>$protectVal</ProtectYourPC>
+            </OOBE>
+            <UserAccounts>
+                <AdministratorPassword>
+                    <Value>$password</Value>
+                    <PlainText>true</PlainText>
+                </AdministratorPassword>
+                <LocalAccounts>
+                    <LocalAccount wcm:action="add">
+                        <Password>
+                            <Value>$password</Value>
+                            <PlainText>true</PlainText>
+                        </Password>
+                        <Group>Administrators</Group>
+                        <DisplayName>$username</DisplayName>
+                        <Name>$username</Name>
+                        <Description>Yerel yönetici hesabı</Description>
+                    </LocalAccount>
+                </LocalAccounts>
+            </UserAccounts>
+            <AutoLogon>
                 <Password>
                     <Value>$password</Value>
                     <PlainText>true</PlainText>
                 </Password>
-                <DisplayName>$username</DisplayName>
-                <Group>$grp</Group>
-                <Name>$username</Name>
-            </LocalAccount>
-        </LocalAccounts>
-"@
-    }
-
-    # ── ComputerName + TimeZone ──
-    $compNameElem = if ($compName -ne "") { "        <ComputerName>$compName</ComputerName>" } else { "" }
-    $tzElem = "        <TimeZone>$tz</TimeZone>"
-
-    # ── specialize component bloğu ──
-    $specCompBlock = ""
-    if ($specCmds.Count -gt 0 -or $compName -ne "") {
-        $specCompBlock = @"
-    <settings pass="specialize">
-        <component name="Microsoft-Windows-Deployment" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
-            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-$specRunSync        </component>
-        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
-            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-$compNameElem
-$tzElem
+                <Enabled>true</Enabled>
+                <LogonCount>1</LogonCount>
+                <Username>$username</Username>
+            </AutoLogon>
         </component>
     </settings>
+</unattend>
 "@
-    }
-
-    # ── XML ŞABLONU BİRLEŞTİR ──
-    $xml = @"
-<?xml version="1.0" encoding="utf-8"?>
-<unattend xmlns="urn:schemas-microsoft-com:unattend">
-    <settings pass="oobeSystem">
-        <component name="Microsoft-Windows-International-Core" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
-            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <InputLocale>$inputLoc</InputLocale>
-            <SystemLocale>$sysLocale</SystemLocale>
-            <UILanguage>$uiLang</UILanguage>
-            <UILanguageFallback>$uiLang</UILanguageFallback>
-            <UserLocale>$sysLocale</UserLocale>
-        </component>
-        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
-            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-$autoLogonBlock$localAccBlock            <OOBE>
-                <HideEULAPage>$oobeHideEULA</HideEULAPage>
-                <HideOnlineAccountScreens>$oobeHideOnline</HideOnlineAccountScreens>
-                <HideWirelessSetupInOOBE>$oobeHideWifi</HideWirelessSetupInOOBE>
-                <NetworkLocation>$oobeNetLoc</NetworkLocation>
-                <ProtectYourPC>$protectVal</ProtectYourPC>
-                <SkipMachineOOBE>$oobeSkipAll</SkipMachineOOBE>
-                <SkipUserOOBE>$oobeSkipAll</SkipUserOOBE>
-            </OOBE>
-        </component>
-    </settings>
-    <settings pass="windowsPE">
-        <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
-            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <InputLocale>$inputLoc</InputLocale>
-            <SystemLocale>$sysLocale</SystemLocale>
-            <UILanguage>$uiLang</UILanguage>
-            <UILanguageFallback>$uiLang</UILanguageFallback>
-            <UserLocale>$sysLocale</UserLocale>
-            <SetupUILanguage>
-                <UILanguage>$uiLang</UILanguage>
-            </SetupUILanguage>
-        </component>
-        <component name="Microsoft-Windows-Setup" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
-            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <DynamicUpdate>
-                <WillShowUI>OnError</WillShowUI>
-            </DynamicUpdate>
-            <UserData>
-                <AcceptEula>$acceptEula</AcceptEula>
-$keyElem            </UserData>
-$diskBlock$peRunSyncContent        </component>
-    </settings>
-$specCompBlock</unattend>
-"@
-    return $xml
+    return $xmlTemplate
 }
 
 # ─────────────────────────────────────────────────────
@@ -7616,7 +7337,7 @@ $BtnResetBuilder.Add_Click({
     $ChkPeDefenderVbs.IsChecked = $true
     # specialize Defender
     foreach ($chk in @($ChkSpecDefenderPolicies,$ChkSpecDefenderServices,$ChkSpecDefenderMpEngine,$ChkSpecSecCenter,$ChkSpecTamperProt)) { $chk.IsChecked = $true }
-    # specialize UAC/VBS
+    # specialize UAC/VBS/Kernel
     foreach ($chk in @($ChkSpecUAC,$ChkSpecVBS,$ChkSpecKernelMit,$ChkSpecSCMPolicy)) { $chk.IsChecked = $true }
     # specialize Gizlilik
     foreach ($chk in @($ChkSpecTelemetry,$ChkSpecBingSearch,$ChkSpecCortana,$ChkSpecAdId,$ChkSpecLocation,$ChkSpecBgApps,$ChkSpecDelivOpt)) { $chk.IsChecked = $true }
@@ -7624,7 +7345,7 @@ $BtnResetBuilder.Add_Click({
     foreach ($chk in @($ChkSpecGameDVR,$ChkSpecGameMode,$ChkSpecTimerRes,$ChkSpecSuperfetch,$ChkSpecMemCompr,$ChkSpecHWGPU,$ChkSpecWER,$ChkSpecNetThrottle,$ChkSpecHpet,$ChkSpecTdrDelay,$ChkSpecPriCtrl,$ChkSpecMaint,$ChkSpecVisualFX)) { $chk.IsChecked = $true }
     # specialize Kapanma
     foreach ($chk in @($ChkSpecShutdownSpeed,$ChkSpecVerboseStatus,$ChkSpecShutdownReason)) { $chk.IsChecked = $true }
-    $ChkSpecFTH.IsChecked = $false
+    $ChkSpecFTH.IsChecked = $true
     # Disk
     $ChkAutoDisk.IsChecked     = $false
     $TxtDiskId.Text            = "0"
@@ -7658,7 +7379,6 @@ $BtnCopyXml.Add_Click({
 
 $BtnSaveXmlAs.Add_Click({
     $dlg = New-Object System.Windows.Forms.SaveFileDialog
-    $dlg.Filter  = "XML Dosyaları (*.xml)|*.xml|Tüm Dosyalar (*.*)|*.*"
     $dlg.FileName = "Autounattend.xml"
     $dlg.Title   = "XML'i Farklı Kaydet"
     if ($dlg.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
