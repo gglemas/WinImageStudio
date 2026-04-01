@@ -1619,22 +1619,419 @@ function Select-Folder {
                         <Grid x:Name="Pg_5" Visibility="Collapsed">
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                             <TextBlock Text="Automated Setup" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" Foreground="#111827"/>
-                            <StackPanel Grid.Row="1">
-                                <Border Style="{StaticResource CardStyle}">
-                                    <StackPanel>
-                                        <TextBlock Text="YANIT DOSYASI (XML)" Style="{StaticResource CardTitle}"/>
-                                        <Grid Margin="0,0,0,6">
-                                            <Grid.ColumnDefinitions><ColumnDefinition Width="85"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                            <TextBlock Text="XML Dosyası:" VerticalAlignment="Center" FontSize="11"/>
-                                            <TextBox x:Name="TxtUnattendXml" Grid.Column="1" Style="{StaticResource RndTxt}" Tag="Unattend.xml veya Autounattend.xml dosyasını seçin..."/>
-                                            <Button x:Name="BtnChooseUnattendXml" Grid.Column="2" Content="..." Style="{StaticResource BtnOutline}" Margin="6,0,0,0" Height="22"/>
-                                        </Grid>
-                                    </StackPanel>
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                              <StackPanel>
+
+                                <!-- ── SEKME BAR ── -->
+                                <Border Background="#F3F4F6" CornerRadius="8" Padding="4" Margin="0,0,0,8">
+                                  <StackPanel Orientation="Horizontal">
+                                    <RadioButton x:Name="RbXmlBuilder"  Content="&#x1F6E0; XML Oluşturucu"  GroupName="AutoSetupMode" IsChecked="True"  FontSize="11" Margin="0,0,6,0"
+                                                 Style="{StaticResource {x:Type RadioButton}}"/>
+                                    <RadioButton x:Name="RbXmlApply"    Content="&#x1F4C1; XML Uygula"        GroupName="AutoSetupMode" FontSize="11" Margin="0,0,6,0"/>
+                                    <RadioButton x:Name="RbXmlPreview"  Content="&#x1F4CB; XML Önizleme"      GroupName="AutoSetupMode" FontSize="11"/>
+                                  </StackPanel>
                                 </Border>
-                                <WrapPanel>
-                                    <Button x:Name="BtnApplyUnattendXml" Content="XML'i İmaja Uygula" Style="{StaticResource BtnAccent}"/>
-                                </WrapPanel>
-                            </StackPanel>
+
+                                <!-- ══ PANEL 1: XML OLUŞTURUCU ══ -->
+                                <StackPanel x:Name="PnlXmlBuilder">
+
+                                  <!-- MİMARİ & WINDOWS VERSİYONU -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="MİMARİ &amp; PLATFORM" Style="{StaticResource CardTitle}"/>
+                                      <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="İşlemci Mimarisi:" VerticalAlignment="Center" FontSize="11"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                          <RadioButton x:Name="RbArchAmd64"  Content="x64 (amd64)"  GroupName="ArchGrp" IsChecked="True" FontSize="11" Margin="0,0,12,0"/>
+                                          <RadioButton x:Name="RbArchX86"    Content="x86 (32-bit)" GroupName="ArchGrp" FontSize="11" Margin="0,0,12,0"/>
+                                          <RadioButton x:Name="RbArchArm64"  Content="ARM64"         GroupName="ArchGrp" FontSize="11"/>
+                                        </StackPanel>
+                                      </Grid>
+                                      <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Windows Sürümü:" VerticalAlignment="Center" FontSize="11"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                          <RadioButton x:Name="RbWin10" Content="Windows 10" GroupName="WinVer" IsChecked="True" FontSize="11" Margin="0,0,12,0"/>
+                                          <RadioButton x:Name="RbWin11" Content="Windows 11"  GroupName="WinVer" FontSize="11"/>
+                                        </StackPanel>
+                                      </Grid>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- DİL &amp; BÖLGE -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="DİL &amp; BÖLGE" Style="{StaticResource CardTitle}"/>
+                                      <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="UI Dili:" VerticalAlignment="Center" FontSize="11"/>
+                                        <ComboBox x:Name="CmbUILanguage" Height="22" FontSize="11">
+                                          <ComboBoxItem Content="tr-TR" IsSelected="True"/>
+                                          <ComboBoxItem Content="en-US"/>
+                                          <ComboBoxItem Content="en-GB"/>
+                                          <ComboBoxItem Content="de-DE"/>
+                                          <ComboBoxItem Content="fr-FR"/>
+                                          <ComboBoxItem Content="es-ES"/>
+                                          <ComboBoxItem Content="it-IT"/>
+                                          <ComboBoxItem Content="pt-BR"/>
+                                          <ComboBoxItem Content="ru-RU"/>
+                                          <ComboBoxItem Content="zh-CN"/>
+                                          <ComboBoxItem Content="ja-JP"/>
+                                          <ComboBoxItem Content="ko-KR"/>
+                                          <ComboBoxItem Content="ar-SA"/>
+                                          <ComboBoxItem Content="pl-PL"/>
+                                          <ComboBoxItem Content="nl-NL"/>
+                                        </ComboBox>
+                                      </Grid>
+                                      <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Sistem Locale:" VerticalAlignment="Center" FontSize="11"/>
+                                        <ComboBox x:Name="CmbSystemLocale" Height="22" FontSize="11">
+                                          <ComboBoxItem Content="tr-TR" IsSelected="True"/>
+                                          <ComboBoxItem Content="en-US"/>
+                                          <ComboBoxItem Content="en-GB"/>
+                                          <ComboBoxItem Content="de-DE"/>
+                                          <ComboBoxItem Content="fr-FR"/>
+                                          <ComboBoxItem Content="es-ES"/>
+                                          <ComboBoxItem Content="it-IT"/>
+                                          <ComboBoxItem Content="pt-BR"/>
+                                          <ComboBoxItem Content="ru-RU"/>
+                                          <ComboBoxItem Content="zh-CN"/>
+                                          <ComboBoxItem Content="ja-JP"/>
+                                          <ComboBoxItem Content="ko-KR"/>
+                                          <ComboBoxItem Content="ar-SA"/>
+                                          <ComboBoxItem Content="pl-PL"/>
+                                          <ComboBoxItem Content="nl-NL"/>
+                                        </ComboBox>
+                                      </Grid>
+                                      <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Klavye Locale:" VerticalAlignment="Center" FontSize="11"/>
+                                        <ComboBox x:Name="CmbInputLocale" Height="22" FontSize="11">
+                                          <ComboBoxItem Content="041f:0000041f" IsSelected="True"/>
+                                          <ComboBoxItem Content="0409:00000409"/>
+                                          <ComboBoxItem Content="0407:00000407"/>
+                                          <ComboBoxItem Content="040c:0000040c"/>
+                                          <ComboBoxItem Content="0c0a:0000040a"/>
+                                          <ComboBoxItem Content="0410:00000410"/>
+                                          <ComboBoxItem Content="0416:00000416"/>
+                                          <ComboBoxItem Content="0419:00000419"/>
+                                          <ComboBoxItem Content="0804:00000804"/>
+                                          <ComboBoxItem Content="0411:00000411"/>
+                                          <ComboBoxItem Content="0412:00000412"/>
+                                          <ComboBoxItem Content="0401:00000401"/>
+                                          <ComboBoxItem Content="0415:00000415"/>
+                                          <ComboBoxItem Content="0413:00000413"/>
+                                        </ComboBox>
+                                      </Grid>
+                                      <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Saat Dilimi:" VerticalAlignment="Center" FontSize="11"/>
+                                        <ComboBox x:Name="CmbTimeZone" Height="22" FontSize="11">
+                                          <ComboBoxItem Content="Turkey Standard Time" IsSelected="True"/>
+                                          <ComboBoxItem Content="UTC"/>
+                                          <ComboBoxItem Content="Pacific Standard Time"/>
+                                          <ComboBoxItem Content="Eastern Standard Time"/>
+                                          <ComboBoxItem Content="Central Standard Time"/>
+                                          <ComboBoxItem Content="Mountain Standard Time"/>
+                                          <ComboBoxItem Content="GMT Standard Time"/>
+                                          <ComboBoxItem Content="W. Europe Standard Time"/>
+                                          <ComboBoxItem Content="Central Europe Standard Time"/>
+                                          <ComboBoxItem Content="E. Europe Standard Time"/>
+                                          <ComboBoxItem Content="Russian Standard Time"/>
+                                          <ComboBoxItem Content="China Standard Time"/>
+                                          <ComboBoxItem Content="Tokyo Standard Time"/>
+                                          <ComboBoxItem Content="Korea Standard Time"/>
+                                          <ComboBoxItem Content="Arab Standard Time"/>
+                                          <ComboBoxItem Content="E. South America Standard Time"/>
+                                          <ComboBoxItem Content="India Standard Time"/>
+                                        </ComboBox>
+                                      </Grid>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- KULLANICI HESABI -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="KULLANICI HESABI" Style="{StaticResource CardTitle}"/>
+                                      <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Kullanıcı Adı:" VerticalAlignment="Center" FontSize="11"/>
+                                        <TextBox x:Name="TxtAutoUsername" Style="{StaticResource RndTxt}" Tag="örn: Kullanıcı"/>
+                                      </Grid>
+                                      <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Parola:" VerticalAlignment="Center" FontSize="11"/>
+                                        <TextBox x:Name="TxtAutoPassword" Style="{StaticResource RndTxt}" Tag="Boş bırakılırsa şifresiz"/>
+                                      </Grid>
+                                      <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Bilgisayar Adı:" VerticalAlignment="Center" FontSize="11"/>
+                                        <TextBox x:Name="TxtAutoComputerName" Style="{StaticResource RndTxt}" Tag="örn: PC-001  (boş=otomatik)"/>
+                                      </Grid>
+                                      <Grid Margin="0,0,0,4">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Hesap Türü:" VerticalAlignment="Center" FontSize="11"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                          <RadioButton x:Name="RbAccAdmin"     Content="Yönetici"           GroupName="AccType" IsChecked="True" FontSize="11" Margin="0,0,12,0"/>
+                                          <RadioButton x:Name="RbAccStandard"  Content="Standart Kullanıcı" GroupName="AccType" FontSize="11"/>
+                                        </StackPanel>
+                                      </Grid>
+                                      <CheckBox x:Name="ChkAutoLogin"       Content="Otomatik Oturum Açma (AutoLogon)"  FontSize="11" Margin="130,4,0,0"/>
+                                      <CheckBox x:Name="ChkSkipMsAccount"   Content="Microsoft Hesabı Ekranını Atla"    FontSize="11" Margin="130,2,0,0" IsChecked="True"/>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- OOBE AYARLARI -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="OOBE (İLK KURULUM EKRANİ) AYARLARI" Style="{StaticResource CardTitle}"/>
+                                      <WrapPanel Margin="0,2,0,0">
+                                        <CheckBox x:Name="ChkHideEULA"         Content="EULA Sayfasını Gizle"             FontSize="11" IsChecked="True"  Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkHideWireless"     Content="Kablosuz Kurulum Ekranını Gizle"  FontSize="11" IsChecked="True"  Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkHideOnlineAcc"    Content="Online Hesap Ekranını Gizle"      FontSize="11" IsChecked="True"  Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSkipOOBE"         Content="Tüm OOBE Adımlarını Atla"         FontSize="11" IsChecked="False" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkNetworkOther"     Content="Ağ Konumu = Other"                FontSize="11" IsChecked="True"  Margin="0,2,16,2"/>
+                                      </WrapPanel>
+                                      <Grid Margin="0,6,0,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="ProtectYourPC:" VerticalAlignment="Center" FontSize="11"/>
+                                        <ComboBox x:Name="CmbProtectPC" Height="22" FontSize="11">
+                                          <ComboBoxItem Content="1 – Hepsini Etkinleştir"/>
+                                          <ComboBoxItem Content="2 – Önerilenleri Etkinleştir"/>
+                                          <ComboBoxItem Content="3 – Hiçbirini Etkinleştirme" IsSelected="True"/>
+                                        </ComboBox>
+                                      </Grid>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- ÜRÜN ANAHTARI -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="ÜRÜN ANAHTARI &amp; LİSANS" Style="{StaticResource CardTitle}"/>
+                                      <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Ürün Anahtarı:" VerticalAlignment="Center" FontSize="11"/>
+                                        <TextBox x:Name="TxtAutoProductKey" Style="{StaticResource RndTxt}" Tag="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX  (boş=sorulsun)"/>
+                                      </Grid>
+                                      <CheckBox x:Name="ChkAcceptEula" Content="EULA'yı Otomatik Kabul Et (AcceptEula=true)" FontSize="11" IsChecked="True"/>
+                                      <Grid Margin="0,6,0,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Anahtar UI:" VerticalAlignment="Center" FontSize="11"/>
+                                        <ComboBox x:Name="CmbKeyWillShowUI" Height="22" FontSize="11">
+                                          <ComboBoxItem Content="Always – Her zaman sor" IsSelected="True"/>
+                                          <ComboBoxItem Content="OnError – Sadece hata olunca sor"/>
+                                          <ComboBoxItem Content="Never – Asla sorma"/>
+                                        </ComboBox>
+                                      </Grid>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- WINDOWS 11 GEREKSİNİM BYPASS (windowsPE) -->
+                                  <Border Style="{StaticResource CardStyle}" x:Name="PnlWin11Bypass" Visibility="Collapsed">
+                                    <StackPanel>
+                                      <TextBlock Text="WINDOWS 11 GEREKSİNİM BYPASS (windowsPE)" Style="{StaticResource CardTitle}"/>
+                                      <TextBlock Text="Bu ayarlar yalnızca Windows 11 için LabConfig kayıt defteri değerleri ekler." FontSize="10" Foreground="#6B7280" Margin="0,0,0,6"/>
+                                      <WrapPanel>
+                                        <CheckBox x:Name="ChkBypassTPM"     Content="TPM 2.0 Bypass"    FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkBypassSB"      Content="Secure Boot Bypass" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkBypassRAM"     Content="RAM Bypass"         FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkBypassStorage" Content="Storage Bypass"     FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkBypassCPU"     Content="CPU Bypass"         FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                      </WrapPanel>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- windowsPE DEFENDER DEVRE DIŞI (VBS Script yöntemi) -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="WINDOWS DEFENDER — windowsPE AŞAMASI" Style="{StaticResource CardTitle}"/>
+                                      <TextBlock Text="Kurulum başlamadan önce WinPE ortamında Defender servislerini devre dışı bırakır (VBS script yöntemi)." FontSize="10" Foreground="#6B7280" Margin="0,0,0,6" TextWrapping="Wrap"/>
+                                      <CheckBox x:Name="ChkPeDefenderVbs" Content="Defender VBS Script Ekle (windowsPE RunSynchronous)" FontSize="11" IsChecked="True"/>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- specialize: DEFENDER POLİTİKA KAYITLARI -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="DEFENDER — specialize AŞAMASI (Politika Kayıtları)" Style="{StaticResource CardTitle}"/>
+                                      <WrapPanel>
+                                        <CheckBox x:Name="ChkSpecDefenderPolicies"  Content="Defender Politikalarını Uygula (DisableAntiSpyware, PUAProtection, vb.)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecDefenderServices"  Content="Defender Servislerini Sil (WdFilter, WinDefend, Sense, vb.)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecDefenderMpEngine"  Content="MpEngine / NIS / Scan Ayarları" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecSecCenter"         Content="Security Center Bildirimleri Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecTamperProt"        Content="TamperProtection = 0 (Müdahale Koruması Kapat)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                      </WrapPanel>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- specialize: UAC & VBS -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="UAC / VBS / KERNEL AZALTMALARI — specialize" Style="{StaticResource CardTitle}"/>
+                                      <WrapPanel>
+                                        <CheckBox x:Name="ChkSpecUAC"          Content="UAC Devre Dışı (EnableLUA=0)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecVBS"          Content="VBS / DeviceGuard Devre Dışı" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecKernelMit"    Content="Kernel Azaltmaları Devre Dışı (MitigationOptions, SEHOP, Spectre/Meltdown)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecSCMPolicy"    Content="SCM Svchost Azaltma Politikasını Devre Dışı Bırak" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                      </WrapPanel>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- specialize: GİZLİLİK & TELEMETRİ -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="GİZLİLİK &amp; TELEMETRİ — specialize" Style="{StaticResource CardTitle}"/>
+                                      <WrapPanel>
+                                        <CheckBox x:Name="ChkSpecTelemetry"    Content="Telemetri Kapat (AllowTelemetry=0)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecBingSearch"   Content="Bing Araması Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecCortana"      Content="Cortana Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecAdId"         Content="Reklam Kimliği Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecLocation"     Content="Konum Servisini Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecBgApps"       Content="Arka Plan Uygulamaları Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecDelivOpt"     Content="Delivery Optimization Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                      </WrapPanel>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- specialize: PERFORMANS -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="PERFORMANS OPTİMİZASYONLARI — specialize" Style="{StaticResource CardTitle}"/>
+                                      <WrapPanel>
+                                        <CheckBox x:Name="ChkSpecGameDVR"     Content="Game DVR / Xbox Kaydı Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecGameMode"    Content="Game Mode Etkinleştir" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecTimerRes"    Content="Global Timer Resolution İste" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecSuperfetch"  Content="Superfetch / SysMain Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecMemCompr"    Content="Memory Compression Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecHWGPU"       Content="HW GPU Scheduling Etkinleştir" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecWER"         Content="Windows Error Reporting Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecNetThrottle" Content="Ağ Kısıtlamasını Kaldır" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecHpet"        Content="HPET Servisini Devre Dışı Bırak" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecTdrDelay"    Content="TDR Gecikmesini Artır (TdrDelay=10)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecPriCtrl"     Content="Win32PrioritySeparation = 38 (Programlar Öncelikli)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecMaint"       Content="Otomatik Bakım Devre Dışı" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecVisualFX"    Content="Visual Effects = Performans (VisualFXSetting=2)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                      </WrapPanel>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- specialize: KAPANMA & YANIT SÜRE -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="KAPANMA HIZI &amp; YANIT SÜRESİ — specialize" Style="{StaticResource CardTitle}"/>
+                                      <WrapPanel>
+                                        <CheckBox x:Name="ChkSpecShutdownSpeed" Content="Hızlı Kapanma (WaitToKillApp=1ms, HungApp=1s)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecFTH"           Content="FTH (Fault Tolerant Heap) Devre Dışı Bırak" FontSize="11" IsChecked="False" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecVerboseStatus"  Content="VerboseStatus Kapat (sessiz kapanma)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecShutdownReason" Content="Kapanma Nedeni Sormayı Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                      </WrapPanel>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- OTOMATİK DİSK BÖLÜMLEME -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="OTOMATİK DİSK BÖLÜMLEME (windowsPE)" Style="{StaticResource CardTitle}"/>
+                                      <CheckBox x:Name="ChkAutoDisk" Content="Otomatik Disk Bölümleme Ekle (DiskConfiguration)" FontSize="11" IsChecked="False"/>
+                                      <StackPanel x:Name="PnlAutoDisk" Visibility="Collapsed" Margin="0,6,0,0">
+                                        <Grid Margin="0,0,0,6">
+                                          <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                          <TextBlock Text="Disk Numarası:" VerticalAlignment="Center" FontSize="11"/>
+                                          <TextBox x:Name="TxtDiskId" Style="{StaticResource RndTxt}" Text="0" Tag="0"/>
+                                        </Grid>
+                                        <Grid Margin="0,0,0,6">
+                                          <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                          <TextBlock Text="Bölümleme Tipi:" VerticalAlignment="Center" FontSize="11"/>
+                                          <ComboBox x:Name="CmbPartStyle" Height="22" FontSize="11">
+                                            <ComboBoxItem Content="GPT (UEFI)" IsSelected="True"/>
+                                            <ComboBoxItem Content="MBR (BIOS/Legacy)"/>
+                                          </ComboBox>
+                                        </Grid>
+                                        <Grid Margin="0,0,0,4">
+                                          <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                          <TextBlock Text="Sistem Bölümü MB:" VerticalAlignment="Center" FontSize="11"/>
+                                          <TextBox x:Name="TxtSysPart" Style="{StaticResource RndTxt}" Text="500" Tag="500"/>
+                                        </Grid>
+                                        <Grid>
+                                          <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                          <TextBlock Text="WinRE Bölümü MB:" VerticalAlignment="Center" FontSize="11"/>
+                                          <TextBox x:Name="TxtRePart" Style="{StaticResource RndTxt}" Text="512" Tag="512"/>
+                                        </Grid>
+                                      </StackPanel>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- ÇIKTI -->
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="OLUŞTURULAN XML'İ KAYDET" Style="{StaticResource CardTitle}"/>
+                                      <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Kayıt Klasörü:" VerticalAlignment="Center" FontSize="11"/>
+                                        <TextBox x:Name="TxtXmlSaveDir" Grid.Column="1" Style="{StaticResource RndTxt}" Tag="Kaydedilecek klasörü seçin..."/>
+                                        <Button x:Name="BtnXmlSaveDir" Grid.Column="2" Content="Gözat" Style="{StaticResource BtnOutline}" Margin="6,0,0,0" Height="22"/>
+                                      </Grid>
+                                      <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Dosya Adı:" VerticalAlignment="Center" FontSize="11"/>
+                                        <ComboBox x:Name="CmbXmlFileName" Height="22" FontSize="11">
+                                          <ComboBoxItem Content="Autounattend.xml" IsSelected="True"/>
+                                          <ComboBoxItem Content="unattend.xml"/>
+                                        </ComboBox>
+                                      </Grid>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <WrapPanel Margin="0,0,0,4">
+                                    <Button x:Name="BtnGenerateXml"   Content="&#x2699; XML Oluştur &amp; Kaydet" Style="{StaticResource BtnAccent}" Margin="0,0,8,0"/>
+                                    <Button x:Name="BtnPreviewXml"    Content="&#x1F4CB; Önizle"                   Style="{StaticResource BtnOutline}" Margin="0,0,8,0"/>
+                                    <Button x:Name="BtnResetBuilder"  Content="&#x1F504; Sıfırla"                  Style="{StaticResource BtnOutline}"/>
+                                  </WrapPanel>
+
+                                </StackPanel>
+
+                                <!-- ══ PANEL 2: XML UYGULA ══ -->
+                                <StackPanel x:Name="PnlXmlApply" Visibility="Collapsed">
+                                  <Border Style="{StaticResource CardStyle}">
+                                    <StackPanel>
+                                      <TextBlock Text="YANIT DOSYASI UYGULA" Style="{StaticResource CardTitle}"/>
+                                      <TextBlock Text="Bağlı imaja mevcut bir Autounattend.xml / unattend.xml dosyasını DISM ile uygular." FontSize="10" Foreground="#6B7280" Margin="0,0,0,8"/>
+                                      <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="100"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="XML Dosyası:" VerticalAlignment="Center" FontSize="11"/>
+                                        <TextBox x:Name="TxtUnattendXml" Grid.Column="1" Style="{StaticResource RndTxt}" Tag="Unattend.xml veya Autounattend.xml dosyasını seçin..."/>
+                                        <Button x:Name="BtnChooseUnattendXml" Grid.Column="2" Content="..." Style="{StaticResource BtnOutline}" Margin="6,0,0,0" Height="22"/>
+                                      </Grid>
+                                    </StackPanel>
+                                  </Border>
+                                  <WrapPanel Margin="0,0,0,4">
+                                    <Button x:Name="BtnApplyUnattendXml" Content="&#x1F4C1; XML'i İmaja Uygula" Style="{StaticResource BtnAccent}"/>
+                                  </WrapPanel>
+                                </StackPanel>
+
+                                <!-- ══ PANEL 3: XML ÖNİZLEME ══ -->
+                                <StackPanel x:Name="PnlXmlPreview" Visibility="Collapsed">
+                                  <Border Style="{StaticResource CardStyle}" Padding="0">
+                                    <StackPanel>
+                                      <TextBlock Text="ÖNİZLEME / XML İÇERİĞİ" Style="{StaticResource CardTitle}" Margin="10,10,10,6"/>
+                                      <ScrollViewer Height="420" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                        <TextBox x:Name="TxtXmlPreview" FontFamily="Consolas" FontSize="10" IsReadOnly="True"
+                                                 Background="#1E1E1E" Foreground="#D4D4D4"
+                                                 BorderThickness="0" Padding="10"
+                                                 TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto"/>
+                                      </ScrollViewer>
+                                    </StackPanel>
+                                  </Border>
+                                  <WrapPanel Margin="0,4,0,4">
+                                    <Button x:Name="BtnCopyXml"    Content="&#x1F4CB; Panoya Kopyala" Style="{StaticResource BtnOutline}" Margin="0,0,8,0"/>
+                                    <Button x:Name="BtnSaveXmlAs"  Content="&#x1F4BE; Farklı Kaydet"  Style="{StaticResource BtnOutline}"/>
+                                  </WrapPanel>
+                                </StackPanel>
+
+                              </StackPanel>
+                            </ScrollViewer>
                         </Grid>
 
                         <Grid x:Name="Pg_6" Visibility="Collapsed">
@@ -6243,12 +6640,1001 @@ $BtnShowTargetEdition.Add_Click({
 })
 
 # ═══════════════════════════════════════════════════════
-# PG_5 : AUTOMATED SETUP
+# PG_5 : AUTOMATED SETUP  –  XML BUILDER + APPLY + PREVIEW
 # ═══════════════════════════════════════════════════════
-$TxtUnattendXml      = $window.FindName("TxtUnattendXml")
-$BtnChooseUnattendXml= $window.FindName("BtnChooseUnattendXml")
-$BtnApplyUnattendXml = $window.FindName("BtnApplyUnattendXml")
 
+# ── Sekme kontrolleri ──────────────────────────────────
+$RbXmlBuilder        = $window.FindName("RbXmlBuilder")
+$RbXmlApply          = $window.FindName("RbXmlApply")
+$RbXmlPreview        = $window.FindName("RbXmlPreview")
+$PnlXmlBuilder       = $window.FindName("PnlXmlBuilder")
+$PnlXmlApply         = $window.FindName("PnlXmlApply")
+$PnlXmlPreview       = $window.FindName("PnlXmlPreview")
+
+function Switch-AutoSetupPanel {
+    $PnlXmlBuilder.Visibility  = [System.Windows.Visibility]::Collapsed
+    $PnlXmlApply.Visibility    = [System.Windows.Visibility]::Collapsed
+    $PnlXmlPreview.Visibility  = [System.Windows.Visibility]::Collapsed
+    if ($RbXmlBuilder.IsChecked)   { $PnlXmlBuilder.Visibility  = [System.Windows.Visibility]::Visible }
+    elseif ($RbXmlApply.IsChecked) { $PnlXmlApply.Visibility    = [System.Windows.Visibility]::Visible }
+    elseif ($RbXmlPreview.IsChecked){ $PnlXmlPreview.Visibility = [System.Windows.Visibility]::Visible }
+}
+$RbXmlBuilder.Add_Checked( { Switch-AutoSetupPanel })
+$RbXmlApply.Add_Checked(   { Switch-AutoSetupPanel })
+$RbXmlPreview.Add_Checked( { Switch-AutoSetupPanel })
+
+# ── Mimari & Platform ─────────────────────────────────
+$RbArchAmd64   = $window.FindName("RbArchAmd64")
+$RbArchX86     = $window.FindName("RbArchX86")
+$RbArchArm64   = $window.FindName("RbArchArm64")
+$RbWin10       = $window.FindName("RbWin10")
+$RbWin11       = $window.FindName("RbWin11")
+$PnlWin11Bypass= $window.FindName("PnlWin11Bypass")
+
+function Get-SelectedArch {
+    if ($RbArchX86.IsChecked)   { return "x86" }
+    if ($RbArchArm64.IsChecked) { return "arm64" }
+    return "amd64"
+}
+
+$RbWin11.Add_Checked({  $PnlWin11Bypass.Visibility = [System.Windows.Visibility]::Visible   })
+$RbWin10.Add_Checked({  $PnlWin11Bypass.Visibility = [System.Windows.Visibility]::Collapsed })
+
+# ── Dil & Bölge ───────────────────────────────────────
+$CmbUILanguage    = $window.FindName("CmbUILanguage")
+$CmbSystemLocale  = $window.FindName("CmbSystemLocale")
+$CmbInputLocale   = $window.FindName("CmbInputLocale")
+$CmbTimeZone      = $window.FindName("CmbTimeZone")
+
+# ── Kullanıcı Hesabı ──────────────────────────────────
+$TxtAutoUsername      = $window.FindName("TxtAutoUsername")
+$TxtAutoPassword      = $window.FindName("TxtAutoPassword")
+$TxtAutoComputerName  = $window.FindName("TxtAutoComputerName")
+$RbAccAdmin           = $window.FindName("RbAccAdmin")
+$RbAccStandard        = $window.FindName("RbAccStandard")
+$ChkAutoLogin         = $window.FindName("ChkAutoLogin")
+$ChkSkipMsAccount     = $window.FindName("ChkSkipMsAccount")
+
+# ── OOBE ──────────────────────────────────────────────
+$ChkHideEULA          = $window.FindName("ChkHideEULA")
+$ChkHideWireless      = $window.FindName("ChkHideWireless")
+$ChkHideOnlineAcc     = $window.FindName("ChkHideOnlineAcc")
+$ChkSkipOOBE          = $window.FindName("ChkSkipOOBE")
+$ChkNetworkOther      = $window.FindName("ChkNetworkOther")
+$CmbProtectPC         = $window.FindName("CmbProtectPC")
+
+# ── Ürün Anahtarı ─────────────────────────────────────
+$TxtAutoProductKey    = $window.FindName("TxtAutoProductKey")
+$ChkAcceptEula        = $window.FindName("ChkAcceptEula")
+$CmbKeyWillShowUI     = $window.FindName("CmbKeyWillShowUI")
+
+# ── Win11 Bypass ──────────────────────────────────────
+$ChkBypassTPM         = $window.FindName("ChkBypassTPM")
+$ChkBypassSB          = $window.FindName("ChkBypassSB")
+$ChkBypassRAM         = $window.FindName("ChkBypassRAM")
+$ChkBypassStorage     = $window.FindName("ChkBypassStorage")
+$ChkBypassCPU         = $window.FindName("ChkBypassCPU")
+
+# ── windowsPE Defender VBS ────────────────────────────
+$ChkPeDefenderVbs     = $window.FindName("ChkPeDefenderVbs")
+
+# ── specialize: Defender ──────────────────────────────
+$ChkSpecDefenderPolicies = $window.FindName("ChkSpecDefenderPolicies")
+$ChkSpecDefenderServices = $window.FindName("ChkSpecDefenderServices")
+$ChkSpecDefenderMpEngine = $window.FindName("ChkSpecDefenderMpEngine")
+$ChkSpecSecCenter        = $window.FindName("ChkSpecSecCenter")
+$ChkSpecTamperProt       = $window.FindName("ChkSpecTamperProt")
+
+# ── specialize: UAC/VBS/Kernel ────────────────────────
+$ChkSpecUAC              = $window.FindName("ChkSpecUAC")
+$ChkSpecVBS              = $window.FindName("ChkSpecVBS")
+$ChkSpecKernelMit        = $window.FindName("ChkSpecKernelMit")
+$ChkSpecSCMPolicy        = $window.FindName("ChkSpecSCMPolicy")
+
+# ── specialize: Gizlilik ──────────────────────────────
+$ChkSpecTelemetry        = $window.FindName("ChkSpecTelemetry")
+$ChkSpecBingSearch       = $window.FindName("ChkSpecBingSearch")
+$ChkSpecCortana          = $window.FindName("ChkSpecCortana")
+$ChkSpecAdId             = $window.FindName("ChkSpecAdId")
+$ChkSpecLocation         = $window.FindName("ChkSpecLocation")
+$ChkSpecBgApps           = $window.FindName("ChkSpecBgApps")
+$ChkSpecDelivOpt         = $window.FindName("ChkSpecDelivOpt")
+
+# ── specialize: Performans ────────────────────────────
+$ChkSpecGameDVR          = $window.FindName("ChkSpecGameDVR")
+$ChkSpecGameMode         = $window.FindName("ChkSpecGameMode")
+$ChkSpecTimerRes         = $window.FindName("ChkSpecTimerRes")
+$ChkSpecSuperfetch       = $window.FindName("ChkSpecSuperfetch")
+$ChkSpecMemCompr         = $window.FindName("ChkSpecMemCompr")
+$ChkSpecHWGPU            = $window.FindName("ChkSpecHWGPU")
+$ChkSpecWER              = $window.FindName("ChkSpecWER")
+$ChkSpecNetThrottle      = $window.FindName("ChkSpecNetThrottle")
+$ChkSpecHpet             = $window.FindName("ChkSpecHpet")
+$ChkSpecTdrDelay         = $window.FindName("ChkSpecTdrDelay")
+$ChkSpecPriCtrl          = $window.FindName("ChkSpecPriCtrl")
+$ChkSpecMaint            = $window.FindName("ChkSpecMaint")
+$ChkSpecVisualFX         = $window.FindName("ChkSpecVisualFX")
+
+# ── specialize: Kapanma Hızı ──────────────────────────
+$ChkSpecShutdownSpeed    = $window.FindName("ChkSpecShutdownSpeed")
+$ChkSpecFTH              = $window.FindName("ChkSpecFTH")
+$ChkSpecVerboseStatus    = $window.FindName("ChkSpecVerboseStatus")
+$ChkSpecShutdownReason   = $window.FindName("ChkSpecShutdownReason")
+
+# ── Disk Bölümleme ────────────────────────────────────
+$ChkAutoDisk          = $window.FindName("ChkAutoDisk")
+$PnlAutoDisk          = $window.FindName("PnlAutoDisk")
+$TxtDiskId            = $window.FindName("TxtDiskId")
+$CmbPartStyle         = $window.FindName("CmbPartStyle")
+$TxtSysPart           = $window.FindName("TxtSysPart")
+$TxtRePart            = $window.FindName("TxtRePart")
+
+$ChkAutoDisk.Add_Checked({   $PnlAutoDisk.Visibility = [System.Windows.Visibility]::Visible   })
+$ChkAutoDisk.Add_Unchecked({ $PnlAutoDisk.Visibility = [System.Windows.Visibility]::Collapsed })
+
+# ── Çıkış / Kayıt ────────────────────────────────────
+$TxtXmlSaveDir        = $window.FindName("TxtXmlSaveDir")
+$BtnXmlSaveDir        = $window.FindName("BtnXmlSaveDir")
+$CmbXmlFileName       = $window.FindName("CmbXmlFileName")
+$BtnGenerateXml       = $window.FindName("BtnGenerateXml")
+$BtnPreviewXml        = $window.FindName("BtnPreviewXml")
+$BtnResetBuilder      = $window.FindName("BtnResetBuilder")
+
+# ── Apply paneli ─────────────────────────────────────
+$TxtUnattendXml       = $window.FindName("TxtUnattendXml")
+$BtnChooseUnattendXml = $window.FindName("BtnChooseUnattendXml")
+$BtnApplyUnattendXml  = $window.FindName("BtnApplyUnattendXml")
+
+# ── Preview paneli ───────────────────────────────────
+$TxtXmlPreview        = $window.FindName("TxtXmlPreview")
+$BtnCopyXml           = $window.FindName("BtnCopyXml")
+$BtnSaveXmlAs         = $window.FindName("BtnSaveXmlAs")
+
+# ─────────────────────────────────────────────────────
+#  XML ÜRETME FONKSİYONU
+# ─────────────────────────────────────────────────────
+function Build-AutounattendXml {
+    $arch       = Get-SelectedArch
+    $isWin11    = $RbWin11.IsChecked
+    $uiLang     = ($CmbUILanguage.SelectedItem).Content
+    $sysLocale  = ($CmbSystemLocale.SelectedItem).Content
+    $inputLoc   = ($CmbInputLocale.SelectedItem).Content
+    $tz         = ($CmbTimeZone.SelectedItem).Content
+    $username   = $TxtAutoUsername.Text.Trim()
+    $password   = $TxtAutoPassword.Text
+    $compName   = $TxtAutoComputerName.Text.Trim()
+    $productKey = $TxtAutoProductKey.Text.Trim()
+    $protectVal = switch(($CmbProtectPC.SelectedIndex)) { 0{"1"} 1{"2"} default{"3"} }
+    $keyUI      = switch(($CmbKeyWillShowUI.SelectedIndex)) { 0{"Always"} 1{"OnError"} default{"Never"} }
+    $acceptEula = if ($ChkAcceptEula.IsChecked) {"true"} else {"false"}
+    $partGPT    = ($CmbPartStyle.SelectedIndex -eq 0)
+    $diskId     = if ($TxtDiskId.Text -match '^\d+$') {$TxtDiskId.Text} else {"0"}
+    $sysMB      = if ($TxtSysPart.Text -match '^\d+$') {$TxtSysPart.Text} else {"500"}
+    $reMB       = if ($TxtRePart.Text -match '^\d+$') {$TxtRePart.Text} else {"512"}
+
+    # ══════════════════════════════════════════════════
+    # windowsPE: Defender VBS script (aynen XML'den)
+    # ══════════════════════════════════════════════════
+    $peVbsBlock = ""
+    if ($ChkPeDefenderVbs.IsChecked) {
+        $peVbsBlock = @"
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>6</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo WScript.Echo "Scanning for newly created SYSTEM registry hive file to disable Windows Defender services..."&amp;echo Set fso = CreateObject("Scripting.FileSystemObject"^))"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>7</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo Set existing = CreateObject("Scripting.Dictionary"^)&amp;echo Function Execute(command^)&amp;echo WScript.Echo "Running command '" + command + "'"&amp;echo Set shell = CreateObject("WScript.Shell"^))"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>8</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo Set exec = shell.Exec(command^)&amp;echo Do While exec.Status = 0&amp;echo WScript.Sleep 100&amp;echo Loop&amp;echo WScript.Echo exec.StdOut.ReadAll&amp;echo WScript.Echo exec.StdErr.ReadAll)"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>9</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo Execute = exec.ExitCode&amp;echo End Function&amp;echo Function FindHiveFiles&amp;echo Set FindHiveFiles = CreateObject("Scripting.Dictionary"^)&amp;echo For Each drive In fso.Drives)"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>10</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo If drive.IsReady And drive.DriveLetter ^&lt;^&gt; "X" Then&amp;echo For Each folder In Array("$Windows.~BT\NewOS\Windows", "Windows"^))"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>11</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo file = fso.BuildPath(fso.BuildPath(drive.RootFolder, folder^), "System32\config\SYSTEM"^)&amp;echo If fso.FileExists(file^) And fso.FileExists(file + ".LOG1"^) And fso.FileExists(file + ".LOG2"^) Then)"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>12</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo FindHiveFiles.Add file, Nothing&amp;echo End If&amp;echo Next&amp;echo End If&amp;echo Next&amp;echo End Function&amp;echo For Each file In FindHiveFiles)"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>13</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo WScript.Echo "Will ignore file at '" + file + "' because it was already present when Windows Setup started."&amp;echo existing.Add file, Nothing&amp;echo Next&amp;echo Do)"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>14</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo For Each file In FindHiveFiles&amp;echo If Not existing.Exists(file^) Then&amp;echo ret = 1&amp;echo While ret ^&gt; 0&amp;echo WScript.Sleep 500&amp;echo ret = Execute("reg.exe LOAD HKLM\mount " + file^))"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>15</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo Wend&amp;echo For Each service In Array("Sense", "WdBoot", "WdFilter", "WdNisDrv", "WdNisSvc", "WinDefend"^))"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>16</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo ret = Execute("reg.exe ADD HKLM\mount\ControlSet001\Services\" + service + " /v Start /t REG_DWORD /d 4 /f"^)&amp;echo Next&amp;echo ret = Execute("reg.exe UNLOAD HKLM\mount"^))"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>17</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo WScript.Echo "Found and successfully modified SYSTEM registry hive file at '" + file + "'. This window will now close."&amp;echo WScript.Sleep 5000&amp;echo Exit Do&amp;echo End If)"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>18</Order>
+                    <Path>cmd.exe /c "&gt;&gt;"X:\defender.vbs" (echo WScript.Sleep 1000&amp;echo Next&amp;echo Loop)"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>19</Order>
+                    <Path>cmd.exe /c "start /MIN cscript.exe //E:vbscript X:\defender.vbs"</Path>
+                </RunSynchronousCommand>
+"@
+    }
+
+    # ══════════════════════════════════════════════════
+    # windowsPE: Win11 Bypass
+    # ══════════════════════════════════════════════════
+    $peBypassCmds = [System.Collections.Generic.List[string]]::new()
+    if ($isWin11) {
+        if ($ChkBypassTPM.IsChecked)     { $peBypassCmds.Add('reg add "HKLM\SYSTEM\Setup\LabConfig" /f /v "BypassTPMCheck" /t REG_DWORD /d 1') }
+        if ($ChkBypassSB.IsChecked)      { $peBypassCmds.Add('reg add "HKLM\SYSTEM\Setup\LabConfig" /f /v "BypassSecureBootCheck" /t REG_DWORD /d 1') }
+        if ($ChkBypassRAM.IsChecked)     { $peBypassCmds.Add('reg add "HKLM\SYSTEM\Setup\LabConfig" /f /v "BypassRAMCheck" /t REG_DWORD /d 1') }
+        if ($ChkBypassStorage.IsChecked) { $peBypassCmds.Add('reg add "HKLM\SYSTEM\Setup\LabConfig" /f /v "BypassStorageCheck" /t REG_DWORD /d 1') }
+        if ($ChkBypassCPU.IsChecked)     { $peBypassCmds.Add('reg add "HKLM\SYSTEM\Setup\LabConfig" /f /v "BypassCPUCheck" /t REG_DWORD /d 1') }
+    }
+
+    $peBypassBlock = ""
+    if ($peBypassCmds.Count -gt 0) {
+        $sb = [System.Text.StringBuilder]::new()
+        $i = 1
+        foreach ($cmd in $peBypassCmds) {
+            $escaped = $cmd -replace '&','&amp;' -replace '"','&quot;'
+            [void]$sb.AppendLine("                <RunSynchronousCommand wcm:action=`"add`">")
+            [void]$sb.AppendLine("                    <Order>$i</Order>")
+            [void]$sb.AppendLine("                    <Path>$escaped</Path>")
+            [void]$sb.AppendLine("                </RunSynchronousCommand>")
+            $i++
+        }
+        $peBypassBlock = $sb.ToString()
+    }
+
+    # windowsPE RunSynchronous birleştirme
+    $peRunSyncContent = ""
+    if ($peBypassCmds.Count -gt 0 -or $ChkPeDefenderVbs.IsChecked) {
+        $peRunSyncContent = "`n            <RunSynchronous>`n"
+        if ($peBypassCmds.Count -gt 0) {
+            $peRunSyncContent += $peBypassBlock
+        }
+        if ($ChkPeDefenderVbs.IsChecked) {
+            $peRunSyncContent += $peVbsBlock
+        }
+        $peRunSyncContent += "            </RunSynchronous>`n"
+    }
+
+    # ══════════════════════════════════════════════════
+    # specialize: komut listesi oluştur
+    # ══════════════════════════════════════════════════
+    $specCmds = [System.Collections.Generic.List[string]]::new()
+
+    # Security Center bildirimleri
+    if ($ChkSpecSecCenter.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\DisableEnhancedNotifications" /v value /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\DisableNotifications" /v value /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\WindowsDefenderSecurityCenter\HideWindowsSecurityNotificationAreaControl" /v value /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Security Center" /v FirstRunDisabled /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Security Center" /v AntiVirusOverride /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Security Center" /v FirewallOverride /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications" /v DisableEnhancedNotifications /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications" /v DisableNotifications /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.SecurityAndMaintenance" /v Enabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows Security Health\State" /v AppAndBrowser_AppRepSmartScreenOff /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Account protection" /v UILockdown /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\App and Browser protection" /v UILockdown /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Device performance and health" /v UILockdown /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Device security" /v DisableTpmFirmwareUpdateWarning /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Device security" /v HideSecureBoot /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Family options" /v UILockdown /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Virus and threat protection" /v HideRansomwareRecovery /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\App and Browser protection" /v DisallowExploitProtectionOverride /t REG_DWORD /d 1 /f')
+    }
+
+    # Defender Politikaları
+    if ($ChkSpecDefenderPolicies.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowIOAVProtection" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v PUAProtection /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableRoutinelyTakingAction /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v ServiceKeepAlive /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v AllowFastServiceStartup /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableLocalAdminMerge /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiVirus /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v RandomizeScheduleTaskTimes /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\WOW6432Node\Policies\Microsoft\Windows Defender" /v DisableRoutinelyTakingAction /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableIOAVProtection /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v LocalSettingOverrideDisableOnAccessProtection /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v LocalSettingOverrideRealtimeScanDirection /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v LocalSettingOverrideDisableIOAVProtection /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v LocalSettingOverrideDisableBehaviorMonitoring /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v LocalSettingOverrideDisableIntrusionPreventionSystem /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v LocalSettingOverrideDisableRealtimeMonitoring /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v RealtimeScanDirection /t REG_DWORD /d 2 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v IOAVMaxSize /t REG_DWORD /d 512 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableInformationProtectionControl /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableIntrusionPreventionSystem /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRawWriteNotification /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v DisableBlockAtFirstSeen /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v LocalSettingOverrideSpynetReporting /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SpynetReporting /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /t REG_DWORD /d 2 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\UX Configuration" /v SuppressRebootNotification /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Controlled Folder Access" /v EnableControlledFolderAccess /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Network Protection" /v EnableNetworkProtection /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR" /v ExploitGuard_ASR_Rules /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware" /v ServiceKeepAlive /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware" /v AllowFastServiceStartup /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware" /v DisableRoutinelyTakingAction /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware" /v DisableAntiSpyware /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware" /v DisableAntiVirus /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware\SpyNet" /v SpyNetReporting /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Microsoft Antimalware\SpyNet" /v LocalSettingOverrideSpyNetReporting /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v ScanWithAntiVirus /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v SaveZoneInformation /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings" /v DisableSecuritySettingsCheck /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v ScanWithAntiVirus /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments" /v SaveZoneInformation /t REG_DWORD /d 1 /f')
+    }
+
+    # Defender MpEngine / NIS / Scan
+    if ($ChkSpecDefenderMpEngine.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowArchiveScanning" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowBehaviorMonitoring" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowCloudProtection" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowEmailScanning" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowFullScanOnMappedNetworkDrives" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowFullScanRemovableDriveScanning" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowIntrusionPreventionSystem" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowOnAccessProtection" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowRealtimeMonitoring" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowScanningNetworkFiles" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowScriptScanning" /v value /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowUserUIAccess" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AvgCPULoadFactor" /v value /t REG_DWORD /d 50 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\CheckForSignaturesBeforeRunningScan" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\CloudBlockLevel" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\CloudExtendedTimeout" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\DaysToRetainCleanedMalware" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\DisableCatchupFullScan" /v value /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\DisableCatchupQuickScan" /v value /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableControlledFolderAccess" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableLowCPUPriority" /v value /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableNetworkProtection" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\PUAProtection" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\RealTimeScanDirection" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScanParameter" /v value /t REG_DWORD /d 2 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScheduleScanDay" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScheduleScanTime" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\SignatureUpdateInterval" /v value /t REG_DWORD /d 24 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\SubmitSamplesConsent" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Exclusions" /v DisableAutoExclusions /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" /v MpEnablePus /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" /v MpCloudBlockLevel /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" /v MpBafsExtendedTimeout /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" /v EnableFileHashComputation /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\NIS\Consumers\IPS" /v ThrottleDetectionEventsRate /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\NIS\Consumers\IPS" /v DisableSignatureRetirement /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\NIS\Consumers\IPS" /v DisableProtocolRecognition /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Policy Manager" /v DisableScanningNetworkFiles /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v LowCpuPriority /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableRestorePoint /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableArchiveScanning /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableScanningNetworkFiles /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableCatchupFullScan /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableCatchupQuickScan /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableEmailScanning /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableHeuristics /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableReparsePointScanning /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v SignatureDisableNotification /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v RealtimeSignatureDelivery /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v ForceUpdateFromMU /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v DisableScheduledSignatureUpdateOnBattery /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v UpdateOnStartUp /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v SignatureUpdateCatchupInterval /t REG_DWORD /d 2 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v DisableUpdateOnStartupWithoutEngine /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v ScheduleTime /t REG_DWORD /d 1440 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v DisableScanOnUpdate /t REG_DWORD /d 1 /f')
+    }
+
+    # TamperProtection
+    if ($ChkSpecTamperProt.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows Defender\Features" /v TamperProtection /t REG_DWORD /d 0 /f')
+    }
+
+    # Defender Servisleri Sil
+    if ($ChkSpecDefenderServices.IsChecked) {
+        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\WdFilter" /f')
+        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\WdNisDrv" /f')
+        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\WdNisSvc" /f')
+        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\WinDefend" /f')
+        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\Sense" /f')
+        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\webthreatdefsvc" /f')
+        $specCmds.Add('reg delete "HKLM\SYSTEM\CurrentControlSet\Services\webthreatdefusersvc" /f')
+    }
+
+    # UAC Devre Dışı
+    if ($ChkSpecUAC.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableLUA /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v ConsentPromptBehaviorAdmin /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v ConsentPromptBehaviorUser /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v FilterAdministratorToken /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableUIADesktopToggle /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v ValidateAdminCodeSignatures /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableSecureUIAPaths /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v DelayedDesktopSwitchTimemout /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v PromptOnSecureDesktop /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableCursorSuppression /t REG_DWORD /d 0 /f')
+    }
+
+    # VBS / DeviceGuard
+    if ($ChkSpecVBS.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v EnableVirtualizationBasedSecurity /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v HypervisorEnforcedCodeIntegrity /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v HVCIMATRequired /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v LsaCfgFlags /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v ConfigureSystemGuardLaunch /t REG_DWORD /d 2 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v RequirePlatformSecurityFeature /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v CachedDrtmAuthIndex /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v RequireMicrosoftSignedBootChain /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v Locked /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v RequirePlatformSecurityFeatures /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v DeployConfigCIPolicy /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v Enabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v Locked /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\CredentialGuard" /v Enabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\VirtualizationBasedTechnology\HypervisorEnforcedCodeIntegrity" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\EnableVirtualizationBasedSecurity" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\ConfigureSystemGuardLaunch" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\LsaCfgFlags" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\DeviceGuard\RequirePlatformSecurityFeatures" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\VirtualizationBasedTechnology\RequireUEFIMemoryAttributesTable" /v value /t REG_DWORD /d 0 /f')
+    }
+
+    # Kernel Azaltmaları
+    if ($ChkSpecKernelMit.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v MitigationAuditOptions /t REG_BINARY /d 000000000000202200000000000020000000000000000000 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v MitigationOptions /t REG_BINARY /d 002222202220222200000000002000200000000000000000 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v KernelSEHOPEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v FeatureSettings /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v FeatureSettingsOverride /t REG_DWORD /d 3 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v FeatureSettingsOverrideMask /t REG_DWORD /d 3 /f')
+    }
+
+    # SCM Svchost Azaltma
+    if ($ChkSpecSCMPolicy.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\SCMConfig" /v EnableSvchostMitigationPolicy /t REG_BINARY /d 0000000000000000 /f')
+    }
+
+    # Telemetri
+    if ($ChkSpecTelemetry.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v DoNotShowFeedbackNotifications /t REG_DWORD /d 1 /f')
+    }
+
+    # Bing Araması
+    if ($ChkSpecBingSearch.IsChecked) {
+        $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v BingSearchEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v AllowSearchToUseLocation /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v DisableSearchBoxSuggestions /t REG_DWORD /d 1 /f')
+    }
+
+    # Cortana
+    if ($ChkSpecCortana.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f')
+    }
+
+    # Reklam Kimliği
+    if ($ChkSpecAdId.IsChecked) {
+        $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v Enabled /t REG_DWORD /d 0 /f')
+    }
+
+    # Konum
+    if ($ChkSpecLocation.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" /v SensorPermissionState /t REG_DWORD /d 0 /f')
+    }
+
+    # Arka Plan Uygulamaları
+    if ($ChkSpecBgApps.IsChecked) {
+        $specCmds.Add('reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" /v GlobalUserDisabled /t REG_DWORD /d 1 /f')
+    }
+
+    # Delivery Optimization
+    if ($ChkSpecDelivOpt.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" /v DODownloadMode /t REG_DWORD /d 0 /f')
+    }
+
+    # Game DVR
+    if ($ChkSpecGameDVR.IsChecked) {
+        $specCmds.Add('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v AppCaptureEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v AllowGameDVR /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v GameDVR_DXGIHonorFSEWindowsCompatible /t REG_DWORD /d 1 /f')
+    }
+
+    # Game Mode
+    if ($ChkSpecGameMode.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 1 /f')
+    }
+
+    # Timer Resolution
+    if ($ChkSpecTimerRes.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v GlobalTimerResolutionRequests /t REG_DWORD /d 1 /f')
+    }
+
+    # Superfetch
+    if ($ChkSpecSuperfetch.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnableSuperfetch /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f')
+    }
+
+    # Memory Compression
+    if ($ChkSpecMemCompr.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisableMemoryCompression /t REG_DWORD /d 1 /f')
+    }
+
+    # HW GPU Scheduling
+    if ($ChkSpecHWGPU.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f')
+    }
+
+    # Windows Error Reporting
+    if ($ChkSpecWER.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting" /v Disabled /t REG_DWORD /d 1 /f')
+    }
+
+    # Ağ Kısıtlaması
+    if ($ChkSpecNetThrottle.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v NetworkThrottlingIndex /t REG_DWORD /d 4294967295 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f')
+    }
+
+    # HPET
+    if ($ChkSpecHpet.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\Hpet" /v Start /t REG_DWORD /d 4 /f')
+    }
+
+    # TDR Delay
+    if ($ChkSpecTdrDelay.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v TdrDelay /t REG_DWORD /d 10 /f')
+    }
+
+    # PriorityControl
+    if ($ChkSpecPriCtrl.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v IRQ8Priority /t REG_DWORD /d 1 /f')
+    }
+
+    # Bakım Devre Dışı
+    if ($ChkSpecMaint.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" /v MaintenanceDisabled /t REG_DWORD /d 1 /f')
+    }
+
+    # Visual FX
+    if ($ChkSpecVisualFX.IsChecked) {
+        $specCmds.Add('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f')
+    }
+
+    # Kapanma Hızı
+    if ($ChkSpecShutdownSpeed.IsChecked) {
+        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v AutoEndTasks /t REG_SZ /d "1" /f')
+        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d "1" /f')
+        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v ForegroundLockTimeout /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v WaitToKillAppTimeout /t REG_SZ /d "1" /f')
+        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v WaitToKillServiceTimeout /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v HungAppTimeout /t REG_SZ /d "1000" /f')
+        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v LowLevelHooksTimeout /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v WaitToKillServiceTimeout /t REG_SZ /d "1" /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v DisableRemoteScmEndpoints /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v HandlerTimeout /t REG_DWORD /d 2147483647 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v ServicesPipeTimeout /t REG_DWORD /d 2359296 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\PnP" /v PollBootPartitionTimeout /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ThumbnailLivePreviewHoverTime /t REG_DWORD /d 1 /f')
+    }
+
+    # FTH
+    if ($ChkSpecFTH.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\FTH" /v Enabled /t REG_DWORD /d 0 /f')
+    }
+
+    # VerboseStatus
+    if ($ChkSpecVerboseStatus.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v VerboseStatus /t REG_DWORD /d 0 /f')
+    }
+
+    # Kapanma Nedeni
+    if ($ChkSpecShutdownReason.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Reliability" /v ShutdownReasonOn /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\Software\Policies\Microsoft\Windows NT\Reliability" /v ShutdownReasonOn /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows" /v ShutdownWarningDialogTimeout /t REG_DWORD /d 1 /f')
+    }
+
+    # ── specialize RunSynchronous XML bloğu ──
+    $specRunSync = ""
+    if ($specCmds.Count -gt 0) {
+        $sb = [System.Text.StringBuilder]::new()
+        [void]$sb.AppendLine("        <RunSynchronous>")
+        $i = 1
+        foreach ($cmd in $specCmds) {
+            $escaped = $cmd -replace '&','&amp;' -replace '<','&lt;' -replace '>','&gt;' -replace '"','&quot;'
+            [void]$sb.AppendLine("            <RunSynchronousCommand wcm:action=`"add`">")
+            [void]$sb.AppendLine("                <Order>$i</Order>")
+            [void]$sb.AppendLine("                <Path>$escaped</Path>")
+            [void]$sb.AppendLine("            </RunSynchronousCommand>")
+            $i++
+        }
+        [void]$sb.AppendLine("        </RunSynchronous>")
+        $specRunSync = $sb.ToString()
+    }
+
+    # ── DiskConfiguration bloğu ──
+    $diskBlock = ""
+    if ($ChkAutoDisk.IsChecked) {
+        if ($partGPT) {
+            $diskBlock = @"
+    <DiskConfiguration>
+        <Disk wcm:action="add">
+            <DiskID>$diskId</DiskID>
+            <WillWipeDisk>true</WillWipeDisk>
+            <CreatePartitions>
+                <CreatePartition wcm:action="add">
+                    <Order>1</Order>
+                    <Type>EFI</Type>
+                    <Size>$sysMB</Size>
+                </CreatePartition>
+                <CreatePartition wcm:action="add">
+                    <Order>2</Order>
+                    <Type>MSR</Type>
+                    <Size>16</Size>
+                </CreatePartition>
+                <CreatePartition wcm:action="add">
+                    <Order>3</Order>
+                    <Type>Primary</Type>
+                    <Extend>true</Extend>
+                </CreatePartition>
+                <CreatePartition wcm:action="add">
+                    <Order>4</Order>
+                    <Type>Primary</Type>
+                    <Size>$reMB</Size>
+                </CreatePartition>
+            </CreatePartitions>
+            <ModifyPartitions>
+                <ModifyPartition wcm:action="add">
+                    <Order>1</Order>
+                    <PartitionID>1</PartitionID>
+                    <Label>System</Label>
+                    <Format>FAT32</Format>
+                </ModifyPartition>
+                <ModifyPartition wcm:action="add">
+                    <Order>2</Order>
+                    <PartitionID>2</PartitionID>
+                </ModifyPartition>
+                <ModifyPartition wcm:action="add">
+                    <Order>3</Order>
+                    <PartitionID>3</PartitionID>
+                    <Label>Windows</Label>
+                    <Format>NTFS</Format>
+                    <Letter>C</Letter>
+                </ModifyPartition>
+                <ModifyPartition wcm:action="add">
+                    <Order>4</Order>
+                    <PartitionID>4</PartitionID>
+                    <Label>WinRE</Label>
+                    <Format>NTFS</Format>
+                    <TypeID>DE94BBA4-06D1-4D40-A16A-BFD50179D6AC</TypeID>
+                </ModifyPartition>
+            </ModifyPartitions>
+        </Disk>
+        <WillShowUI>OnError</WillShowUI>
+    </DiskConfiguration>
+    <ImageInstall>
+        <OSImage>
+            <InstallFrom>
+                <MetaData wcm:action="add">
+                    <Key>/IMAGE/INDEX</Key>
+                    <Value>1</Value>
+                </MetaData>
+            </InstallFrom>
+            <InstallTo>
+                <DiskID>$diskId</DiskID>
+                <PartitionID>3</PartitionID>
+            </InstallTo>
+        </OSImage>
+    </ImageInstall>
+"@
+        } else {
+            $diskBlock = @"
+    <DiskConfiguration>
+        <Disk wcm:action="add">
+            <DiskID>$diskId</DiskID>
+            <WillWipeDisk>true</WillWipeDisk>
+            <CreatePartitions>
+                <CreatePartition wcm:action="add">
+                    <Order>1</Order>
+                    <Type>Primary</Type>
+                    <Size>$sysMB</Size>
+                </CreatePartition>
+                <CreatePartition wcm:action="add">
+                    <Order>2</Order>
+                    <Type>Primary</Type>
+                    <Extend>true</Extend>
+                </CreatePartition>
+            </CreatePartitions>
+            <ModifyPartitions>
+                <ModifyPartition wcm:action="add">
+                    <Order>1</Order>
+                    <PartitionID>1</PartitionID>
+                    <Label>System Reserved</Label>
+                    <Format>NTFS</Format>
+                    <Active>true</Active>
+                </ModifyPartition>
+                <ModifyPartition wcm:action="add">
+                    <Order>2</Order>
+                    <PartitionID>2</PartitionID>
+                    <Label>Windows</Label>
+                    <Format>NTFS</Format>
+                    <Letter>C</Letter>
+                </ModifyPartition>
+            </ModifyPartitions>
+        </Disk>
+        <WillShowUI>OnError</WillShowUI>
+    </DiskConfiguration>
+    <ImageInstall>
+        <OSImage>
+            <InstallFrom>
+                <MetaData wcm:action="add">
+                    <Key>/IMAGE/INDEX</Key>
+                    <Value>1</Value>
+                </MetaData>
+            </InstallFrom>
+            <InstallTo>
+                <DiskID>$diskId</DiskID>
+                <PartitionID>2</PartitionID>
+            </InstallTo>
+        </OSImage>
+    </ImageInstall>
+"@
+        }
+    }
+
+    # ── Ürün anahtarı elementi ──
+    $keyElem = @"
+            <ProductKey>
+                <Key>$productKey</Key>
+                <WillShowUI>$keyUI</WillShowUI>
+            </ProductKey>
+"@
+
+    # ── OOBE değerleri ──
+    $oobeHideEULA   = if ($ChkHideEULA.IsChecked)     {"true"} else {"false"}
+    $oobeHideOnline = if ($ChkHideOnlineAcc.IsChecked) {"true"} else {"false"}
+    $oobeHideWifi   = if ($ChkHideWireless.IsChecked)  {"true"} else {"false"}
+    $oobeSkipAll    = if ($ChkSkipOOBE.IsChecked)      {"true"} else {"false"}
+    $oobeNetLoc     = if ($ChkNetworkOther.IsChecked)   {"Other"} else {"Work"}
+    $skipMsAcc      = if ($ChkSkipMsAccount.IsChecked)  {"true"} else {"false"}
+
+    # ── AutoLogon bloğu ──
+    $autoLogonBlock = ""
+    if ($ChkAutoLogin.IsChecked -and $username -ne "") {
+        $autoLogonBlock = @"
+        <AutoLogon>
+            <Password>
+                <Value>$password</Value>
+                <PlainText>true</PlainText>
+            </Password>
+            <Enabled>true</Enabled>
+            <LogonCount>1</LogonCount>
+            <Username>$username</Username>
+        </AutoLogon>
+"@
+    }
+
+    # ── LocalAccounts bloğu ──
+    $localAccBlock = ""
+    if ($username -ne "") {
+        $grp = if ($RbAccAdmin.IsChecked) {"Administrators"} else {"Users"}
+        $localAccBlock = @"
+        <LocalAccounts>
+            <LocalAccount wcm:action="add">
+                <Password>
+                    <Value>$password</Value>
+                    <PlainText>true</PlainText>
+                </Password>
+                <DisplayName>$username</DisplayName>
+                <Group>$grp</Group>
+                <Name>$username</Name>
+            </LocalAccount>
+        </LocalAccounts>
+"@
+    }
+
+    # ── ComputerName + TimeZone ──
+    $compNameElem = if ($compName -ne "") { "        <ComputerName>$compName</ComputerName>" } else { "" }
+    $tzElem = "        <TimeZone>$tz</TimeZone>"
+
+    # ── specialize component bloğu ──
+    $specCompBlock = ""
+    if ($specCmds.Count -gt 0 -or $compName -ne "") {
+        $specCompBlock = @"
+    <settings pass="specialize">
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+$specRunSync        </component>
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+$compNameElem
+$tzElem
+        </component>
+    </settings>
+"@
+    }
+
+    # ── XML ŞABLONU BİRLEŞTİR ──
+    $xml = @"
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+    <settings pass="oobeSystem">
+        <component name="Microsoft-Windows-International-Core" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <InputLocale>$inputLoc</InputLocale>
+            <SystemLocale>$sysLocale</SystemLocale>
+            <UILanguage>$uiLang</UILanguage>
+            <UILanguageFallback>$uiLang</UILanguageFallback>
+            <UserLocale>$sysLocale</UserLocale>
+        </component>
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+$autoLogonBlock$localAccBlock            <OOBE>
+                <HideEULAPage>$oobeHideEULA</HideEULAPage>
+                <HideOnlineAccountScreens>$oobeHideOnline</HideOnlineAccountScreens>
+                <HideWirelessSetupInOOBE>$oobeHideWifi</HideWirelessSetupInOOBE>
+                <NetworkLocation>$oobeNetLoc</NetworkLocation>
+                <ProtectYourPC>$protectVal</ProtectYourPC>
+                <SkipMachineOOBE>$oobeSkipAll</SkipMachineOOBE>
+                <SkipUserOOBE>$oobeSkipAll</SkipUserOOBE>
+            </OOBE>
+        </component>
+    </settings>
+    <settings pass="windowsPE">
+        <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <InputLocale>$inputLoc</InputLocale>
+            <SystemLocale>$sysLocale</SystemLocale>
+            <UILanguage>$uiLang</UILanguage>
+            <UILanguageFallback>$uiLang</UILanguageFallback>
+            <UserLocale>$sysLocale</UserLocale>
+            <SetupUILanguage>
+                <UILanguage>$uiLang</UILanguage>
+            </SetupUILanguage>
+        </component>
+        <component name="Microsoft-Windows-Setup" processorArchitecture="$arch" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS"
+            xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <DynamicUpdate>
+                <WillShowUI>OnError</WillShowUI>
+            </DynamicUpdate>
+            <UserData>
+                <AcceptEula>$acceptEula</AcceptEula>
+$keyElem            </UserData>
+$diskBlock$peRunSyncContent        </component>
+    </settings>
+$specCompBlock</unattend>
+"@
+    return $xml
+}
+
+# ─────────────────────────────────────────────────────
+#  BUTON OLAYLARI
+# ─────────────────────────────────────────────────────
+
+# Klasör seçici
+$BtnXmlSaveDir.Add_Click({
+    $dlg = New-Object System.Windows.Forms.FolderBrowserDialog
+    $dlg.Description = "XML dosyasını kaydetmek için klasör seçin"
+    if ($dlg.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $TxtXmlSaveDir.Text = $dlg.SelectedPath
+    }
+})
+
+# XML Oluştur & Kaydet
+$BtnGenerateXml.Add_Click({
+    if ($TxtXmlSaveDir.Text -eq "") {
+        Show-Alert -Title "Eksik Alan" -Message "Lütfen kayıt klasörünü seçin."
+        return
+    }
+    $xmlContent = Build-AutounattendXml
+    $fileName   = ($CmbXmlFileName.SelectedItem).Content
+    $outPath    = Join-Path $TxtXmlSaveDir.Text $fileName
+    try {
+        [System.IO.File]::WriteAllText($outPath, $xmlContent, [System.Text.Encoding]::UTF8)
+        $TxtXmlPreview.Text = $xmlContent
+        Show-Alert -Title "Başarılı" -Message "XML dosyası oluşturuldu:`n$outPath"
+        Write-Log "Autounattend XML oluşturuldu: $outPath" -Level "OK"
+    } catch {
+        Show-Alert -Title "Hata" -Message "XML kaydedilemedi: $_"
+        Write-Log "XML kayıt hatası: $_" -Level "ERR"
+    }
+})
+
+# Önizle
+$BtnPreviewXml.Add_Click({
+    $xmlContent = Build-AutounattendXml
+    $TxtXmlPreview.Text = $xmlContent
+    $RbXmlPreview.IsChecked = $true
+})
+
+# Sıfırla
+$BtnResetBuilder.Add_Click({
+    $TxtAutoUsername.Text      = ""
+    $TxtAutoPassword.Text      = ""
+    $TxtAutoComputerName.Text  = ""
+    $TxtAutoProductKey.Text    = ""
+    $TxtXmlSaveDir.Text        = ""
+    $RbArchAmd64.IsChecked     = $true
+    $RbWin10.IsChecked         = $true
+    $CmbUILanguage.SelectedIndex    = 0
+    $CmbSystemLocale.SelectedIndex  = 0
+    $CmbInputLocale.SelectedIndex   = 0
+    $CmbTimeZone.SelectedIndex      = 0
+    $CmbProtectPC.SelectedIndex     = 2
+    $CmbKeyWillShowUI.SelectedIndex = 0
+    $ChkHideEULA.IsChecked     = $true
+    $ChkHideWireless.IsChecked = $true
+    $ChkHideOnlineAcc.IsChecked= $true
+    $ChkSkipOOBE.IsChecked     = $false
+    $ChkNetworkOther.IsChecked = $true
+    $ChkAcceptEula.IsChecked   = $true
+    $ChkAutoLogin.IsChecked    = $false
+    $ChkSkipMsAccount.IsChecked= $true
+    $RbAccAdmin.IsChecked      = $true
+    # Win11 Bypass
+    foreach ($chk in @($ChkBypassTPM,$ChkBypassSB,$ChkBypassRAM,$ChkBypassStorage,$ChkBypassCPU)) { $chk.IsChecked = $true }
+    # windowsPE
+    $ChkPeDefenderVbs.IsChecked = $true
+    # specialize Defender
+    foreach ($chk in @($ChkSpecDefenderPolicies,$ChkSpecDefenderServices,$ChkSpecDefenderMpEngine,$ChkSpecSecCenter,$ChkSpecTamperProt)) { $chk.IsChecked = $true }
+    # specialize UAC/VBS
+    foreach ($chk in @($ChkSpecUAC,$ChkSpecVBS,$ChkSpecKernelMit,$ChkSpecSCMPolicy)) { $chk.IsChecked = $true }
+    # specialize Gizlilik
+    foreach ($chk in @($ChkSpecTelemetry,$ChkSpecBingSearch,$ChkSpecCortana,$ChkSpecAdId,$ChkSpecLocation,$ChkSpecBgApps,$ChkSpecDelivOpt)) { $chk.IsChecked = $true }
+    # specialize Performans
+    foreach ($chk in @($ChkSpecGameDVR,$ChkSpecGameMode,$ChkSpecTimerRes,$ChkSpecSuperfetch,$ChkSpecMemCompr,$ChkSpecHWGPU,$ChkSpecWER,$ChkSpecNetThrottle,$ChkSpecHpet,$ChkSpecTdrDelay,$ChkSpecPriCtrl,$ChkSpecMaint,$ChkSpecVisualFX)) { $chk.IsChecked = $true }
+    # specialize Kapanma
+    foreach ($chk in @($ChkSpecShutdownSpeed,$ChkSpecVerboseStatus,$ChkSpecShutdownReason)) { $chk.IsChecked = $true }
+    $ChkSpecFTH.IsChecked = $false
+    # Disk
+    $ChkAutoDisk.IsChecked     = $false
+    $TxtDiskId.Text            = "0"
+    $CmbPartStyle.SelectedIndex= 0
+    $TxtSysPart.Text           = "500"
+    $TxtRePart.Text            = "512"
+    Write-Log "Autounattend builder sıfırlandı." -Level "INFO"
+})
+
+# Apply paneli
 $BtnChooseUnattendXml.Add_Click({
     $f = Select-File -Filter "XML Dosyaları (*.xml)|*.xml|Tüm Dosyalar (*.*)|*.*" -Title "Unattend XML Seçin"
     if ($f -ne "") { $TxtUnattendXml.Text = $f }
@@ -6260,6 +7646,29 @@ $BtnApplyUnattendXml.Add_Click({
     $uArgs = "/Image:`"$global:StrMountedImageLocation`" /Apply-Unattend:`"$($TxtUnattendXml.Text)`""
     Write-Log "DISM $uArgs" -Level "RUN"
     Start-DismJob -DismArgs $uArgs -StatusMessage "Unattend.xml uygulanıyor..."
+})
+
+# Preview paneli
+$BtnCopyXml.Add_Click({
+    if ($TxtXmlPreview.Text -ne "") {
+        [System.Windows.Clipboard]::SetText($TxtXmlPreview.Text)
+        Show-Alert -Title "Kopyalandı" -Message "XML içeriği panoya kopyalandı."
+    }
+})
+
+$BtnSaveXmlAs.Add_Click({
+    $dlg = New-Object System.Windows.Forms.SaveFileDialog
+    $dlg.Filter  = "XML Dosyaları (*.xml)|*.xml|Tüm Dosyalar (*.*)|*.*"
+    $dlg.FileName = "Autounattend.xml"
+    $dlg.Title   = "XML'i Farklı Kaydet"
+    if ($dlg.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        try {
+            [System.IO.File]::WriteAllText($dlg.FileName, $TxtXmlPreview.Text, [System.Text.Encoding]::UTF8)
+            Show-Alert -Title "Başarılı" -Message "Dosya kaydedildi:`n$($dlg.FileName)"
+        } catch {
+            Show-Alert -Title "Hata" -Message "Dosya kaydedilemedi: $_"
+        }
+    }
 })
 
 # ═══════════════════════════════════════════════════════
