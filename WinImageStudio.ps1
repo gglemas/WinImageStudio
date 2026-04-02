@@ -575,6 +575,32 @@ function Select-Folder {
             <Setter Property="Margin"      Value="0,0,0,8"/>
         </Style>
 
+        <Style x:Key="TabRadioButton" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabBorder" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="#E5E7EB"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="White"/>
+                                <Setter Property="Foreground" Value="#3B82F6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="WinBtn" TargetType="Button">
             <Setter Property="Width"  Value="12"/><Setter Property="Height" Value="12"/>
             <Setter Property="Cursor" Value="Arrow"/>
@@ -1623,360 +1649,512 @@ function Select-Folder {
                               <StackPanel>
 
                                 <!-- ── SEKME BAR ── -->
-                                <Border Background="#F3F4F6" CornerRadius="8" Padding="4" Margin="0,0,0,8">
+                                <Border Background="#F3F4F6" CornerRadius="5" Padding="4" Margin="0,0,0,6">
                                   <StackPanel Orientation="Horizontal">
                                     <RadioButton x:Name="RbXmlBuilder"  Content="&#x1F6E0; XML Oluşturucu"  GroupName="AutoSetupMode" IsChecked="True"  FontSize="11" Margin="0,0,6,0"
-                                                 Style="{StaticResource {x:Type RadioButton}}"/>
-                                    <RadioButton x:Name="RbXmlApply"    Content="&#x1F4C1; XML Uygula"        GroupName="AutoSetupMode" FontSize="11" Margin="0,0,6,0"/>
-                                    <RadioButton x:Name="RbXmlPreview"  Content="&#x1F4CB; XML Önizleme"      GroupName="AutoSetupMode" FontSize="11"/>
+                                                 Style="{StaticResource TabRadioButton}"/>
+                                    <RadioButton x:Name="RbXmlApply"    Content="&#x1F4C1; XML Uygula"        GroupName="AutoSetupMode" FontSize="11" Margin="0,0,6,0"
+                                                 Style="{StaticResource TabRadioButton}"/>
+                                    <RadioButton x:Name="RbXmlPreview"  Content="&#x1F4CB; XML Önizleme"      GroupName="AutoSetupMode" FontSize="11"
+                                                 Style="{StaticResource TabRadioButton}"/>
                                   </StackPanel>
                                 </Border>
 
                                 <!-- ══ PANEL 1: XML OLUŞTURUCU ══ -->
                                 <StackPanel x:Name="PnlXmlBuilder">
 
-                                  <!-- MİMARİ & WINDOWS VERSİYONU -->
+                                  <!-- HIZLI AYAR ÖNAYARLARı -->
                                   <Border Style="{StaticResource CardStyle}">
                                     <StackPanel>
-                                      <TextBlock Text="MİMARİ &amp; PLATFORM" Style="{StaticResource CardTitle}"/>
-                                      <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="İşlemci Mimarisi:" VerticalAlignment="Center" FontSize="11"/>
-                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                          <RadioButton x:Name="RbArchAmd64"  Content="x64 (amd64)"  GroupName="ArchGrp" IsChecked="True" FontSize="11" Margin="0,0,12,0"/>
-                                          <RadioButton x:Name="RbArchX86"    Content="x86 (32-bit)" GroupName="ArchGrp" FontSize="11" Margin="0,0,12,0"/>
-                                          <RadioButton x:Name="RbArchArm64"  Content="ARM64"         GroupName="ArchGrp" FontSize="11"/>
+                                      <TextBlock Text="HIZLI AYAR ÖNAYARLARı" Style="{StaticResource CardTitle}"/>
+                                      <TextBlock Text="Kullanım senaryonuza göre hazır profil seçin, tüm ayarlar otomatik yapılandırılsın." FontSize="10" Foreground="#6B7280" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                                      <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                          <ColumnDefinition Width="*"/>
+                                          <ColumnDefinition Width="*"/>
+                                          <ColumnDefinition Width="*"/>
+                                          <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button x:Name="BtnPresetGaming" Grid.Column="0" Content="🎮 Gaming" Style="{StaticResource BtnAccent}" Margin="0,0,3,0" Height="28" Padding="0" FontSize="11" ToolTip="Oyun performansı için optimize"/>
+                                        <Button x:Name="BtnPresetSecurity" Grid.Column="1" Content="�️ Security" Style="{StaticResource BtnOutline}" Margin="0,0,3,0" Height="28" Padding="0" FontSize="11" ToolTip="Maksimum güvenlik, Defender aktif"/>
+                                        <Button x:Name="BtnPresetStandard" Grid.Column="2" Content="📋 Standard" Style="{StaticResource BtnOutline}" Margin="0,0,3,0" Height="28" Padding="0" FontSize="11" ToolTip="Dengeli, günlük kullanım"/>
+                                        <Button x:Name="BtnPresetOptimize" Grid.Column="3" Content="⚡ Optimize" Style="{StaticResource BtnOutline}" Margin="0" Height="28" Padding="0" FontSize="11" ToolTip="Maksimum performans ve gizlilik"/>
+                                      </Grid>
+                                      <Border x:Name="BrdSettingsSummary" Background="#FFFBEB" BorderBrush="#FCD34D" BorderThickness="1" CornerRadius="5" Padding="10,6">
+                                        <TextBlock x:Name="TxtSettingsSummary" FontSize="10" Foreground="#92400E" TextWrapping="Wrap" Text="Ayarlarınızı seçtikçe burada özet görünecek..."/>
+                                      </Border>
+                                    </StackPanel>
+                                  </Border>
+
+                                  <!-- MİMARİ & DİL & BÖLGE (Yan Yana) -->
+                                  <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                      <ColumnDefinition Width="*"/>
+                                      <ColumnDefinition Width="6"/>
+                                      <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- MİMARİ & WINDOWS VERSİYONU -->
+                                    <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                                      <StackPanel>
+                                        <TextBlock Text="MİMARİ &amp; PLATFORM" Style="{StaticResource CardTitle}"/>
+                                        <Grid Margin="0,0,0,6">
+                                          <Grid.ColumnDefinitions><ColumnDefinition Width="60"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                          <TextBlock Text="Mimari:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                          <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                            <RadioButton x:Name="RbArchAmd64" GroupName="ArchGrp" IsChecked="True" Margin="0,0,8,0" 
+                                                         TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType">
+                                              <TextBlock Text="x64" FontSize="11" TextOptions.TextFormattingMode="Display"/>
+                                            </RadioButton>
+                                            <RadioButton x:Name="RbArchX86" GroupName="ArchGrp" Margin="0,0,8,0"
+                                                         TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType">
+                                              <TextBlock Text="x86" FontSize="11" TextOptions.TextFormattingMode="Display"/>
+                                            </RadioButton>
+                                            <RadioButton x:Name="RbArchArm64" GroupName="ArchGrp"
+                                                         TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType">
+                                              <TextBlock Text="ARM64" FontSize="11" TextOptions.TextFormattingMode="Display"/>
+                                            </RadioButton>
+                                          </StackPanel>
+                                        </Grid>
+                                        <Grid Margin="0,4,0,0">
+                                          <Grid.ColumnDefinitions><ColumnDefinition Width="60"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                          <TextBlock Text="Sürüm:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                          <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                            <RadioButton x:Name="RbWin10" GroupName="WinVer" IsChecked="True" Margin="0,0,8,0"
+                                                         TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType">
+                                              <TextBlock Text="Windows 10" FontSize="11" TextOptions.TextFormattingMode="Display"/>
+                                            </RadioButton>
+                                            <RadioButton x:Name="RbWin11" GroupName="WinVer"
+                                                         TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType">
+                                              <TextBlock Text="Windows 11" FontSize="11" TextOptions.TextFormattingMode="Display"/>
+                                            </RadioButton>
+                                          </StackPanel>
+                                        </Grid>
+                                      </StackPanel>
+                                    </Border>
+
+                                    <!-- DİL & BÖLGE -->
+                                    <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                                      <StackPanel>
+                                        <TextBlock Text="DİL &amp; BÖLGE" Style="{StaticResource CardTitle}"/>
+                                        <Grid Margin="0,0,0,4">
+                                          <Grid.ColumnDefinitions><ColumnDefinition Width="60"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                          <TextBlock Text="UI Dili:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                          <ComboBox x:Name="CmbUILanguage" Grid.Column="1" Height="22" FontSize="10">
+                                            <ComboBoxItem Content="tr-TR (Türkçe)" IsSelected="True"/>
+                                            <ComboBoxItem Content="en-US (English US)"/>
+                                            <ComboBoxItem Content="en-GB (English UK)"/>
+                                            <ComboBoxItem Content="de-DE (Deutsch)"/>
+                                            <ComboBoxItem Content="fr-FR (Français)"/>
+                                            <ComboBoxItem Content="es-ES (Español)"/>
+                                            <ComboBoxItem Content="it-IT (Italiano)"/>
+                                            <ComboBoxItem Content="pt-BR (Português BR)"/>
+                                            <ComboBoxItem Content="pt-PT (Português PT)"/>
+                                            <ComboBoxItem Content="ru-RU (Русский)"/>
+                                            <ComboBoxItem Content="zh-CN (中文简体)"/>
+                                            <ComboBoxItem Content="zh-TW (中文繁體)"/>
+                                            <ComboBoxItem Content="ja-JP (日本語)"/>
+                                            <ComboBoxItem Content="ko-KR (한국어)"/>
+                                            <ComboBoxItem Content="ar-SA (العربية)"/>
+                                            <ComboBoxItem Content="pl-PL (Polski)"/>
+                                            <ComboBoxItem Content="nl-NL (Nederlands)"/>
+                                            <ComboBoxItem Content="sv-SE (Svenska)"/>
+                                            <ComboBoxItem Content="da-DK (Dansk)"/>
+                                            <ComboBoxItem Content="fi-FI (Suomi)"/>
+                                            <ComboBoxItem Content="no-NO (Norsk)"/>
+                                            <ComboBoxItem Content="cs-CZ (Čeština)"/>
+                                            <ComboBoxItem Content="hu-HU (Magyar)"/>
+                                            <ComboBoxItem Content="el-GR (Ελληνικά)"/>
+                                            <ComboBoxItem Content="he-IL (עברית)"/>
+                                            <ComboBoxItem Content="th-TH (ไทย)"/>
+                                            <ComboBoxItem Content="vi-VN (Tiếng Việt)"/>
+                                            <ComboBoxItem Content="uk-UA (Українська)"/>
+                                            <ComboBoxItem Content="ro-RO (Română)"/>
+                                            <ComboBoxItem Content="bg-BG (Български)"/>
+                                          </ComboBox>
+                                        </Grid>
+                                        <Grid Margin="0,4,0,0">
+                                          <Grid.ColumnDefinitions><ColumnDefinition Width="60"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                          <TextBlock Text="Klavye:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                          <ComboBox x:Name="CmbInputLocale" Grid.Column="1" Height="22" FontSize="10">
+                                            <ComboBoxItem Content="041f:0000041f (Turkish Q)" IsSelected="True"/>
+                                            <ComboBoxItem Content="0409:00000409 (US)"/>
+                                            <ComboBoxItem Content="0809:00000809 (UK)"/>
+                                            <ComboBoxItem Content="0407:00000407 (German)"/>
+                                            <ComboBoxItem Content="040c:0000040c (French)"/>
+                                            <ComboBoxItem Content="0c0a:0000040a (Spanish)"/>
+                                            <ComboBoxItem Content="0410:00000410 (Italian)"/>
+                                            <ComboBoxItem Content="0416:00000416 (Portuguese BR)"/>
+                                            <ComboBoxItem Content="0816:00000816 (Portuguese PT)"/>
+                                            <ComboBoxItem Content="0419:00000419 (Russian)"/>
+                                            <ComboBoxItem Content="0804:00000804 (Chinese Simplified)"/>
+                                            <ComboBoxItem Content="0404:00000404 (Chinese Traditional)"/>
+                                            <ComboBoxItem Content="0411:00000411 (Japanese)"/>
+                                            <ComboBoxItem Content="0412:00000412 (Korean)"/>
+                                            <ComboBoxItem Content="0401:00000401 (Arabic 101)"/>
+                                            <ComboBoxItem Content="0415:00000415 (Polish)"/>
+                                            <ComboBoxItem Content="0413:00000413 (Dutch)"/>
+                                            <ComboBoxItem Content="041d:0000041d (Swedish)"/>
+                                            <ComboBoxItem Content="0406:00000406 (Danish)"/>
+                                            <ComboBoxItem Content="040b:0000040b (Finnish)"/>
+                                            <ComboBoxItem Content="0414:00000414 (Norwegian)"/>
+                                            <ComboBoxItem Content="0405:00000405 (Czech)"/>
+                                            <ComboBoxItem Content="040e:0000040e (Hungarian)"/>
+                                            <ComboBoxItem Content="0408:00000408 (Greek)"/>
+                                            <ComboBoxItem Content="040d:0002040d (Hebrew Standard)"/>
+                                            <ComboBoxItem Content="041e:0000041e (Thai Kedmanee)"/>
+                                            <ComboBoxItem Content="042a:0000042a (Vietnamese)"/>
+                                            <ComboBoxItem Content="0422:00020422 (Ukrainian Enhanced)"/>
+                                            <ComboBoxItem Content="0418:00010418 (Romanian Standard)"/>
+                                            <ComboBoxItem Content="0402:00030402 (Bulgarian)"/>
+                                            <ComboBoxItem Content="041a:0000041a (Croatian)"/>
+                                            <ComboBoxItem Content="0424:00000424 (Slovenian)"/>
+                                            <ComboBoxItem Content="041b:0000041b (Slovak)"/>
+                                            <ComboBoxItem Content="0425:00000425 (Estonian)"/>
+                                            <ComboBoxItem Content="0426:00020426 (Latvian Standard)"/>
+                                            <ComboBoxItem Content="0427:00010427 (Lithuanian)"/>
+                                            <ComboBoxItem Content="042f:0001042f (Macedonian Standard)"/>
+                                            <ComboBoxItem Content="0c1a:00000c1a (Serbian Cyrillic)"/>
+                                            <ComboBoxItem Content="081a:0000081a (Serbian Latin)"/>
+                                          </ComboBox>
+                                        </Grid>
+                                      </StackPanel>
+                                    </Border>
+                                  </Grid>
+
+                                  <!-- KULLANICI HESABI & OOBE (Yan Yana) -->
+                                  <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                      <ColumnDefinition Width="*"/>
+                                      <ColumnDefinition Width="6"/>
+                                      <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- KULLANICI HESABI -->
+                                    <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                                      <StackPanel>
+                                        <Grid Margin="0,0,0,6">
+                                          <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                          </Grid.ColumnDefinitions>
+                                          <CheckBox x:Name="ChkEnableUserAccount" IsChecked="True" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                          <TextBlock Grid.Column="1" Text="KULLANICI HESABI" Style="{StaticResource CardTitle}" Margin="0"/>
+                                        </Grid>
+                                        <StackPanel x:Name="PnlUserAccount">
+                                          <Grid Margin="0,0,0,4">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="Kullanıcı:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                            <TextBox x:Name="TxtAutoUsername" Grid.Column="1" Style="{StaticResource RndTxt}" Tag="örn: Kullanıcı"/>
+                                          </Grid>
+                                          <Grid Margin="0,4,0,4">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="Parola:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                            <TextBox x:Name="TxtAutoPassword" Grid.Column="1" Style="{StaticResource RndTxt}" Tag="Boş=şifresiz"/>
+                                          </Grid>
+                                          <Grid Margin="0,4,0,4">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="PC Adı:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                            <TextBox x:Name="TxtAutoComputerName" Grid.Column="1" Style="{StaticResource RndTxt}" Tag="boş=otomatik"/>
+                                          </Grid>
+                                          <Grid Margin="0,4,0,4">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="Hesap:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                              <RadioButton x:Name="RbAccAdmin" GroupName="AccType" IsChecked="True" Margin="0,0,8,0"
+                                                           TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType">
+                                                <TextBlock Text="Yönetici" FontSize="11" TextOptions.TextFormattingMode="Display"/>
+                                              </RadioButton>
+                                              <RadioButton x:Name="RbAccStandard" GroupName="AccType"
+                                                           TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType">
+                                                <TextBlock Text="Standart" FontSize="11" TextOptions.TextFormattingMode="Display"/>
+                                              </RadioButton>
+                                            </StackPanel>
+                                          </Grid>
+                                          <CheckBox x:Name="ChkAutoLogin" Content="Otomatik Oturum Açma" FontSize="10" Margin="0,0,0,2"/>
+                                          <CheckBox x:Name="ChkSkipMsAccount" Content="MS Hesabı Ekranını Atla" FontSize="10" IsChecked="True"/>
                                         </StackPanel>
-                                      </Grid>
-                                      <Grid>
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Windows Sürümü:" VerticalAlignment="Center" FontSize="11"/>
-                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                          <RadioButton x:Name="RbWin10" Content="Windows 10" GroupName="WinVer" IsChecked="True" FontSize="11" Margin="0,0,12,0"/>
-                                          <RadioButton x:Name="RbWin11" Content="Windows 11"  GroupName="WinVer" FontSize="11"/>
+                                      </StackPanel>
+                                    </Border>
+
+                                    <!-- OOBE AYARLARI -->
+                                    <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                                      <StackPanel>
+                                        <TextBlock Text="OOBE AYARLARI" Style="{StaticResource CardTitle}" Margin="0,0,0,6"/>
+                                        <CheckBox x:Name="ChkHideEULA" Content="EULA Sayfasını Gizle" FontSize="10" IsChecked="True" Margin="0,0,0,3"/>
+                                        <CheckBox x:Name="ChkHideWireless" Content="Kablosuz Ekranını Gizle" FontSize="10" IsChecked="True" Margin="0,0,0,3"/>
+                                        <CheckBox x:Name="ChkHideOnlineAcc" Content="Online Hesap Ekranını Gizle" FontSize="10" IsChecked="True" Margin="0,0,0,3"/>
+                                        <CheckBox x:Name="ChkSkipOOBE" Content="Tüm OOBE Adımlarını Atla" FontSize="10" IsChecked="False" Margin="0,0,0,3"/>
+                                        <CheckBox x:Name="ChkNetworkOther" Content="Ağ Konumu = Other" FontSize="10" IsChecked="True" Margin="0,0,0,6"/>
+                                        <Grid Margin="0,4,0,0">
+                                          <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                          <TextBlock Text="ProtectPC:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                          <ComboBox x:Name="CmbProtectPC" Grid.Column="1" Height="22" FontSize="10">
+                                            <ComboBoxItem Content="1 – Hepsini Etkinleştir"/>
+                                            <ComboBoxItem Content="2 – Önerilenleri Etkinleştir"/>
+                                            <ComboBoxItem Content="3 – Hiçbirini Etkinleştirme" IsSelected="True"/>
+                                          </ComboBox>
+                                        </Grid>
+                                      </StackPanel>
+                                    </Border>
+                                  </Grid>
+
+                                  <!-- ÜRÜN ANAHTARI & SAAT DİLİMİ (Yan Yana) -->
+                                  <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                      <ColumnDefinition Width="*"/>
+                                      <ColumnDefinition Width="6"/>
+                                      <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- ÜRÜN ANAHTARI -->
+                                    <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                                      <StackPanel>
+                                        <Grid Margin="0,0,0,6">
+                                          <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                          </Grid.ColumnDefinitions>
+                                          <CheckBox x:Name="ChkEnableProductKey" IsChecked="False" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                          <TextBlock Grid.Column="1" Text="ÜRÜN ANAHTARI" Style="{StaticResource CardTitle}" Margin="0"/>
+                                        </Grid>
+                                        <StackPanel x:Name="PnlProductKey" Visibility="Collapsed">
+                                          <Grid Margin="0,0,0,4">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="Anahtar:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                            <TextBox x:Name="TxtAutoProductKey" Grid.Column="1" Style="{StaticResource RndTxt}" Tag="boş=sorulsun"/>
+                                          </Grid>
+                                          <CheckBox x:Name="ChkAcceptEula" Content="EULA Otomatik Kabul" FontSize="10" IsChecked="True" Margin="0,0,0,6"/>
+                                          <Grid Margin="0,4,0,0">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="Key UI:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                            <ComboBox x:Name="CmbKeyWillShowUI" Grid.Column="1" Height="22" FontSize="10">
+                                              <ComboBoxItem Content="Always" IsSelected="True"/>
+                                              <ComboBoxItem Content="OnError"/>
+                                              <ComboBoxItem Content="Never"/>
+                                            </ComboBox>
+                                          </Grid>
                                         </StackPanel>
-                                      </Grid>
-                                    </StackPanel>
-                                  </Border>
+                                      </StackPanel>
+                                    </Border>
 
-                                  <!-- DİL &amp; BÖLGE -->
-                                  <Border Style="{StaticResource CardStyle}">
-                                    <StackPanel>
-                                      <TextBlock Text="DİL &amp; BÖLGE" Style="{StaticResource CardTitle}"/>
-                                      <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="UI Dili:" VerticalAlignment="Center" FontSize="11"/>
-                                        <ComboBox x:Name="CmbUILanguage" Height="22" FontSize="11">
-                                          <ComboBoxItem Content="tr-TR" IsSelected="True"/>
-                                          <ComboBoxItem Content="en-US"/>
-                                          <ComboBoxItem Content="en-GB"/>
-                                          <ComboBoxItem Content="de-DE"/>
-                                          <ComboBoxItem Content="fr-FR"/>
-                                          <ComboBoxItem Content="es-ES"/>
-                                          <ComboBoxItem Content="it-IT"/>
-                                          <ComboBoxItem Content="pt-BR"/>
-                                          <ComboBoxItem Content="ru-RU"/>
-                                          <ComboBoxItem Content="zh-CN"/>
-                                          <ComboBoxItem Content="ja-JP"/>
-                                          <ComboBoxItem Content="ko-KR"/>
-                                          <ComboBoxItem Content="ar-SA"/>
-                                          <ComboBoxItem Content="pl-PL"/>
-                                          <ComboBoxItem Content="nl-NL"/>
-                                        </ComboBox>
-                                      </Grid>
-                                      <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Sistem Locale:" VerticalAlignment="Center" FontSize="11"/>
-                                        <ComboBox x:Name="CmbSystemLocale" Height="22" FontSize="11">
-                                          <ComboBoxItem Content="tr-TR" IsSelected="True"/>
-                                          <ComboBoxItem Content="en-US"/>
-                                          <ComboBoxItem Content="en-GB"/>
-                                          <ComboBoxItem Content="de-DE"/>
-                                          <ComboBoxItem Content="fr-FR"/>
-                                          <ComboBoxItem Content="es-ES"/>
-                                          <ComboBoxItem Content="it-IT"/>
-                                          <ComboBoxItem Content="pt-BR"/>
-                                          <ComboBoxItem Content="ru-RU"/>
-                                          <ComboBoxItem Content="zh-CN"/>
-                                          <ComboBoxItem Content="ja-JP"/>
-                                          <ComboBoxItem Content="ko-KR"/>
-                                          <ComboBoxItem Content="ar-SA"/>
-                                          <ComboBoxItem Content="pl-PL"/>
-                                          <ComboBoxItem Content="nl-NL"/>
-                                        </ComboBox>
-                                      </Grid>
-                                      <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Klavye Locale:" VerticalAlignment="Center" FontSize="11"/>
-                                        <ComboBox x:Name="CmbInputLocale" Height="22" FontSize="11">
-                                          <ComboBoxItem Content="041f:0000041f" IsSelected="True"/>
-                                          <ComboBoxItem Content="0409:00000409"/>
-                                          <ComboBoxItem Content="0407:00000407"/>
-                                          <ComboBoxItem Content="040c:0000040c"/>
-                                          <ComboBoxItem Content="0c0a:0000040a"/>
-                                          <ComboBoxItem Content="0410:00000410"/>
-                                          <ComboBoxItem Content="0416:00000416"/>
-                                          <ComboBoxItem Content="0419:00000419"/>
-                                          <ComboBoxItem Content="0804:00000804"/>
-                                          <ComboBoxItem Content="0411:00000411"/>
-                                          <ComboBoxItem Content="0412:00000412"/>
-                                          <ComboBoxItem Content="0401:00000401"/>
-                                          <ComboBoxItem Content="0415:00000415"/>
-                                          <ComboBoxItem Content="0413:00000413"/>
-                                        </ComboBox>
-                                      </Grid>
-                                      <Grid>
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Saat Dilimi:" VerticalAlignment="Center" FontSize="11"/>
-                                        <ComboBox x:Name="CmbTimeZone" Height="22" FontSize="11">
-                                          <ComboBoxItem Content="Turkey Standard Time" IsSelected="True"/>
-                                          <ComboBoxItem Content="UTC"/>
-                                          <ComboBoxItem Content="Pacific Standard Time"/>
-                                          <ComboBoxItem Content="Eastern Standard Time"/>
-                                          <ComboBoxItem Content="Central Standard Time"/>
-                                          <ComboBoxItem Content="Mountain Standard Time"/>
-                                          <ComboBoxItem Content="GMT Standard Time"/>
-                                          <ComboBoxItem Content="W. Europe Standard Time"/>
-                                          <ComboBoxItem Content="Central Europe Standard Time"/>
-                                          <ComboBoxItem Content="E. Europe Standard Time"/>
-                                          <ComboBoxItem Content="Russian Standard Time"/>
-                                          <ComboBoxItem Content="China Standard Time"/>
-                                          <ComboBoxItem Content="Tokyo Standard Time"/>
-                                          <ComboBoxItem Content="Korea Standard Time"/>
-                                          <ComboBoxItem Content="Arab Standard Time"/>
-                                          <ComboBoxItem Content="E. South America Standard Time"/>
-                                          <ComboBoxItem Content="India Standard Time"/>
-                                        </ComboBox>
-                                      </Grid>
-                                    </StackPanel>
-                                  </Border>
-
-                                  <!-- KULLANICI HESABI -->
-                                  <Border Style="{StaticResource CardStyle}">
-                                    <StackPanel>
-                                      <TextBlock Text="KULLANICI HESABI" Style="{StaticResource CardTitle}"/>
-                                      <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Kullanıcı Adı:" VerticalAlignment="Center" FontSize="11"/>
-                                        <TextBox x:Name="TxtAutoUsername" Style="{StaticResource RndTxt}" Tag="örn: Kullanıcı"/>
-                                      </Grid>
-                                      <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Parola:" VerticalAlignment="Center" FontSize="11"/>
-                                        <TextBox x:Name="TxtAutoPassword" Style="{StaticResource RndTxt}" Tag="Boş bırakılırsa şifresiz"/>
-                                      </Grid>
-                                      <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Bilgisayar Adı:" VerticalAlignment="Center" FontSize="11"/>
-                                        <TextBox x:Name="TxtAutoComputerName" Style="{StaticResource RndTxt}" Tag="örn: PC-001  (boş=otomatik)"/>
-                                      </Grid>
-                                      <Grid Margin="0,0,0,4">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Hesap Türü:" VerticalAlignment="Center" FontSize="11"/>
-                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                          <RadioButton x:Name="RbAccAdmin"     Content="Yönetici"           GroupName="AccType" IsChecked="True" FontSize="11" Margin="0,0,12,0"/>
-                                          <RadioButton x:Name="RbAccStandard"  Content="Standart Kullanıcı" GroupName="AccType" FontSize="11"/>
-                                        </StackPanel>
-                                      </Grid>
-                                      <CheckBox x:Name="ChkAutoLogin"       Content="Otomatik Oturum Açma (AutoLogon)"  FontSize="11" Margin="130,4,0,0"/>
-                                      <CheckBox x:Name="ChkSkipMsAccount"   Content="Microsoft Hesabı Ekranını Atla"    FontSize="11" Margin="130,2,0,0" IsChecked="True"/>
-                                    </StackPanel>
-                                  </Border>
-
-                                  <!-- OOBE AYARLARI -->
-                                  <Border Style="{StaticResource CardStyle}">
-                                    <StackPanel>
-                                      <TextBlock Text="OOBE (İLK KURULUM EKRANİ) AYARLARI" Style="{StaticResource CardTitle}"/>
-                                      <WrapPanel Margin="0,2,0,0">
-                                        <CheckBox x:Name="ChkHideEULA"         Content="EULA Sayfasını Gizle"             FontSize="11" IsChecked="True"  Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkHideWireless"     Content="Kablosuz Kurulum Ekranını Gizle"  FontSize="11" IsChecked="True"  Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkHideOnlineAcc"    Content="Online Hesap Ekranını Gizle"      FontSize="11" IsChecked="True"  Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSkipOOBE"         Content="Tüm OOBE Adımlarını Atla"         FontSize="11" IsChecked="False" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkNetworkOther"     Content="Ağ Konumu = Other"                FontSize="11" IsChecked="True"  Margin="0,2,16,2"/>
-                                      </WrapPanel>
-                                      <Grid Margin="0,6,0,0">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="ProtectYourPC:" VerticalAlignment="Center" FontSize="11"/>
-                                        <ComboBox x:Name="CmbProtectPC" Height="22" FontSize="11">
-                                          <ComboBoxItem Content="1 – Hepsini Etkinleştir"/>
-                                          <ComboBoxItem Content="2 – Önerilenleri Etkinleştir"/>
-                                          <ComboBoxItem Content="3 – Hiçbirini Etkinleştirme" IsSelected="True"/>
-                                        </ComboBox>
-                                      </Grid>
-                                    </StackPanel>
-                                  </Border>
-
-                                  <!-- ÜRÜN ANAHTARI -->
-                                  <Border Style="{StaticResource CardStyle}">
-                                    <StackPanel>
-                                      <TextBlock Text="ÜRÜN ANAHTARI &amp; LİSANS" Style="{StaticResource CardTitle}"/>
-                                      <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Ürün Anahtarı:" VerticalAlignment="Center" FontSize="11"/>
-                                        <TextBox x:Name="TxtAutoProductKey" Style="{StaticResource RndTxt}" Tag="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX  (boş=sorulsun)"/>
-                                      </Grid>
-                                      <CheckBox x:Name="ChkAcceptEula" Content="EULA'yı Otomatik Kabul Et (AcceptEula=true)" FontSize="11" IsChecked="True"/>
-                                      <Grid Margin="0,6,0,0">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Anahtar UI:" VerticalAlignment="Center" FontSize="11"/>
-                                        <ComboBox x:Name="CmbKeyWillShowUI" Height="22" FontSize="11">
-                                          <ComboBoxItem Content="Always – Her zaman sor" IsSelected="True"/>
-                                          <ComboBoxItem Content="OnError – Sadece hata olunca sor"/>
-                                          <ComboBoxItem Content="Never – Asla sorma"/>
-                                        </ComboBox>
-                                      </Grid>
-                                    </StackPanel>
-                                  </Border>
+                                    <!-- DİĞER BÖLGE AYARLARI -->
+                                    <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                                      <StackPanel>
+                                        <TextBlock Text="DİĞER BÖLGE AYARLARI" Style="{StaticResource CardTitle}"/>
+                                        <Grid Margin="0,0,0,4">
+                                          <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                          <TextBlock Text="Locale:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                          <ComboBox x:Name="CmbSystemLocale" Grid.Column="1" Height="22" FontSize="10">
+                                            <ComboBoxItem Content="tr-TR (Türkçe)" IsSelected="True"/>
+                                            <ComboBoxItem Content="en-US (English US)"/>
+                                            <ComboBoxItem Content="en-GB (English UK)"/>
+                                            <ComboBoxItem Content="de-DE (Deutsch)"/>
+                                            <ComboBoxItem Content="fr-FR (Français)"/>
+                                            <ComboBoxItem Content="es-ES (Español)"/>
+                                            <ComboBoxItem Content="it-IT (Italiano)"/>
+                                            <ComboBoxItem Content="pt-BR (Português BR)"/>
+                                            <ComboBoxItem Content="ru-RU (Русский)"/>
+                                            <ComboBoxItem Content="zh-CN (中文)"/>
+                                            <ComboBoxItem Content="ja-JP (日本語)"/>
+                                            <ComboBoxItem Content="ko-KR (한국어)"/>
+                                            <ComboBoxItem Content="ar-SA (العربية)"/>
+                                            <ComboBoxItem Content="pl-PL (Polski)"/>
+                                            <ComboBoxItem Content="nl-NL (Nederlands)"/>
+                                          </ComboBox>
+                                        </Grid>
+                                        <Grid Margin="0,4,0,0">
+                                          <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                          <TextBlock Text="Saat Dilimi:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                          <ComboBox x:Name="CmbTimeZone" Grid.Column="1" Height="22" FontSize="10">
+                                            <ComboBoxItem Content="Turkey Standard Time" IsSelected="True"/>
+                                            <ComboBoxItem Content="UTC"/>
+                                            <ComboBoxItem Content="GMT Standard Time"/>
+                                            <ComboBoxItem Content="W. Europe Standard Time"/>
+                                            <ComboBoxItem Content="Central Europe Standard Time"/>
+                                            <ComboBoxItem Content="E. Europe Standard Time"/>
+                                            <ComboBoxItem Content="Pacific Standard Time"/>
+                                            <ComboBoxItem Content="Eastern Standard Time"/>
+                                            <ComboBoxItem Content="Central Standard Time"/>
+                                            <ComboBoxItem Content="Mountain Standard Time"/>
+                                            <ComboBoxItem Content="Russian Standard Time"/>
+                                            <ComboBoxItem Content="China Standard Time"/>
+                                            <ComboBoxItem Content="Tokyo Standard Time"/>
+                                            <ComboBoxItem Content="Korea Standard Time"/>
+                                            <ComboBoxItem Content="Arab Standard Time"/>
+                                            <ComboBoxItem Content="India Standard Time"/>
+                                            <ComboBoxItem Content="E. South America Standard Time"/>
+                                            <ComboBoxItem Content="AUS Eastern Standard Time"/>
+                                          </ComboBox>
+                                        </Grid>
+                                      </StackPanel>
+                                    </Border>
+                                  </Grid>
 
                                   <!-- WINDOWS 11 GEREKSİNİM BYPASS (windowsPE) -->
                                   <Border Style="{StaticResource CardStyle}" x:Name="PnlWin11Bypass" Visibility="Collapsed">
                                     <StackPanel>
-                                      <TextBlock Text="WINDOWS 11 GEREKSİNİM BYPASS (windowsPE)" Style="{StaticResource CardTitle}"/>
-                                      <TextBlock Text="Bu ayarlar yalnızca Windows 11 için LabConfig kayıt defteri değerleri ekler." FontSize="10" Foreground="#6B7280" Margin="0,0,0,6"/>
+                                      <TextBlock Text="WINDOWS 11 GEREKSİNİM BYPASS" Style="{StaticResource CardTitle}"/>
+                                      <TextBlock Text="Bu ayarlar yalnızca Windows 11 için LabConfig kayıt defteri değerleri ekler." FontSize="10" Foreground="#6B7280" Margin="0,0,0,4"/>
                                       <WrapPanel>
-                                        <CheckBox x:Name="ChkBypassTPM"     Content="TPM 2.0 Bypass"    FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkBypassSB"      Content="Secure Boot Bypass" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkBypassRAM"     Content="RAM Bypass"         FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkBypassStorage" Content="Storage Bypass"     FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkBypassCPU"     Content="CPU Bypass"         FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkBypassTPM"     Content="TPM 2.0 Bypass"    FontSize="10" IsChecked="True" Margin="0,0,10,0"/>
+                                        <CheckBox x:Name="ChkBypassSB"      Content="Secure Boot Bypass" FontSize="10" IsChecked="True" Margin="0,0,10,0"/>
+                                        <CheckBox x:Name="ChkBypassRAM"     Content="RAM Bypass"         FontSize="10" IsChecked="True" Margin="0,0,10,0"/>
+                                        <CheckBox x:Name="ChkBypassStorage" Content="Storage Bypass"     FontSize="10" IsChecked="True" Margin="0,0,10,0"/>
+                                        <CheckBox x:Name="ChkBypassCPU"     Content="CPU Bypass"         FontSize="10" IsChecked="True" Margin="0,0,10,0"/>
                                       </WrapPanel>
                                     </StackPanel>
                                   </Border>
 
-                                  <!-- windowsPE DEFENDER DEVRE DIŞI (VBS Script yöntemi) -->
+                                  <!-- DEFENDER & GÜVENLİK AYARLARI -->
                                   <Border Style="{StaticResource CardStyle}">
                                     <StackPanel>
-                                      <TextBlock Text="WINDOWS DEFENDER — windowsPE AŞAMASI" Style="{StaticResource CardTitle}"/>
-                                      <TextBlock Text="Kurulum başlamadan önce WinPE ortamında Defender servislerini devre dışı bırakır (VBS script yöntemi)." FontSize="10" Foreground="#6B7280" Margin="0,0,0,6" TextWrapping="Wrap"/>
-                                      <CheckBox x:Name="ChkPeDefenderVbs" Content="Defender VBS Script Ekle (windowsPE RunSynchronous)" FontSize="11" IsChecked="True"/>
+                                      <TextBlock Text="DEFENDER &amp; GÜVENLİK AYARLARI" Style="{StaticResource CardTitle}"/>
+                                      <CheckBox x:Name="ChkPeDefenderVbs" Content="WinPE: Defender VBS Script Ekle" FontSize="10" IsChecked="True" Margin="0,0,0,3"/>
+                                      <CheckBox x:Name="ChkSpecDefenderOptimize" Content="Specialize: Defender Optimize (Minimal RAM)" FontSize="10" IsChecked="False" Margin="0,0,0,3" Foreground="#10B981" FontWeight="SemiBold" ToolTip="Defender aktif kalır ama minimum RAM kullanır - Real-time protection, scans, cloud kapalı"/>
+                                      <CheckBox x:Name="ChkSpecDefenderPolicies" Content="Specialize: Defender Politikalarını Uygula" FontSize="10" IsChecked="True" Margin="0,0,0,3"/>
+                                      <CheckBox x:Name="ChkSpecDefenderServices" Content="Specialize: Defender Servislerini Sil" FontSize="10" IsChecked="True" Margin="0,0,0,3"/>
+                                      <CheckBox x:Name="ChkSpecDefenderMpEngine" Content="Specialize: MpEngine / NIS / Scan Ayarları" FontSize="10" IsChecked="True" Margin="0,0,0,3"/>
+                                      <CheckBox x:Name="ChkSpecSecCenter" Content="Specialize: Security Center Bildirimleri Kapat" FontSize="10" IsChecked="True" Margin="0,0,0,3"/>
+                                      <CheckBox x:Name="ChkSpecTamperProt" Content="Specialize: TamperProtection = 0" FontSize="10" IsChecked="True"/>
                                     </StackPanel>
                                   </Border>
 
-                                  <!-- specialize: DEFENDER POLİTİKA KAYITLARI -->
+                                  <!-- UAC & VBS & KERNEL -->
                                   <Border Style="{StaticResource CardStyle}">
                                     <StackPanel>
-                                      <TextBlock Text="DEFENDER — specialize AŞAMASI (Politika Kayıtları)" Style="{StaticResource CardTitle}"/>
+                                      <TextBlock Text="UAC / VBS / KERNEL AZALTMALARI" Style="{StaticResource CardTitle}"/>
                                       <WrapPanel>
-                                        <CheckBox x:Name="ChkSpecDefenderPolicies"  Content="Defender Politikalarını Uygula (DisableAntiSpyware, PUAProtection, vb.)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecDefenderServices"  Content="Defender Servislerini Sil (WdFilter, WinDefend, Sense, vb.)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecDefenderMpEngine"  Content="MpEngine / NIS / Scan Ayarları" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecSecCenter"         Content="Security Center Bildirimleri Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecTamperProt"        Content="TamperProtection = 0 (Müdahale Koruması Kapat)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecUAC" Content="UAC Devre Dışı" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecVBS" Content="VBS / DeviceGuard Devre Dışı" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecKernelMit" Content="Kernel Azaltmaları Devre Dışı" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecSCMPolicy" Content="SCM Svchost Azaltma Devre Dışı" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
                                       </WrapPanel>
                                     </StackPanel>
                                   </Border>
 
-                                  <!-- specialize: UAC & VBS -->
+                                  <!-- GİZLİLİK & TELEMETRİ -->
                                   <Border Style="{StaticResource CardStyle}">
                                     <StackPanel>
-                                      <TextBlock Text="UAC / VBS / KERNEL AZALTMALARI — specialize" Style="{StaticResource CardTitle}"/>
+                                      <TextBlock Text="GİZLİLİK &amp; TELEMETRİ" Style="{StaticResource CardTitle}"/>
                                       <WrapPanel>
-                                        <CheckBox x:Name="ChkSpecUAC"          Content="UAC Devre Dışı (EnableLUA=0)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecVBS"          Content="VBS / DeviceGuard Devre Dışı" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecKernelMit"    Content="Kernel Azaltmaları Devre Dışı (MitigationOptions, SEHOP, Spectre/Meltdown)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecSCMPolicy"    Content="SCM Svchost Azaltma Politikasını Devre Dışı Bırak" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecTelemetry" Content="Telemetri Kapat" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecBingSearch" Content="Bing Araması Kapat" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecCortana" Content="Cortana Kapat" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecAdId" Content="Reklam Kimliği Kapat" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecLocation" Content="Konum Servisi Kapat" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecBgApps" Content="Arka Plan Uygulamaları Kapat" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecDelivOpt" Content="Delivery Optimization Kapat" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
                                       </WrapPanel>
                                     </StackPanel>
                                   </Border>
 
-                                  <!-- specialize: GİZLİLİK & TELEMETRİ -->
+                                  <!-- PERFORMANS OPTİMİZASYONLARI -->
                                   <Border Style="{StaticResource CardStyle}">
                                     <StackPanel>
-                                      <TextBlock Text="GİZLİLİK &amp; TELEMETRİ — specialize" Style="{StaticResource CardTitle}"/>
+                                      <TextBlock Text="PERFORMANS OPTİMİZASYONLARI" Style="{StaticResource CardTitle}"/>
                                       <WrapPanel>
-                                        <CheckBox x:Name="ChkSpecTelemetry"    Content="Telemetri Kapat (AllowTelemetry=0)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecBingSearch"   Content="Bing Araması Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecCortana"      Content="Cortana Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecAdId"         Content="Reklam Kimliği Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecLocation"     Content="Konum Servisini Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecBgApps"       Content="Arka Plan Uygulamaları Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecDelivOpt"     Content="Delivery Optimization Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecPerfectPerf" Content="Perfect Performance Registry (Kapsamlı)" FontSize="10" IsChecked="False" Margin="0,0,10,6" FontWeight="SemiBold" Foreground="#DC2626" ToolTip="CPU, GPU, Ağ, Disk, UI optimizasyonları - 150+ registry ayarı"/>
+                                        <CheckBox x:Name="ChkSpecGameDVR" Content="Game DVR Kapat" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecGameMode" Content="Game Mode Etkinleştir" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecTimerRes" Content="Timer Resolution İste" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecSuperfetch" Content="Superfetch Kapat" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecMemCompr" Content="Memory Compression Kapat" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecHWGPU" Content="HW GPU Scheduling" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecWER" Content="Error Reporting Kapat" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecNetThrottle" Content="Ağ Kısıtlamasını Kaldır" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecHpet" Content="HPET Devre Dışı" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecTdrDelay" Content="TDR Gecikmesi Artır" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecPriCtrl" Content="Win32Priority = 38" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecMaint" Content="Otomatik Bakım Kapat" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecVisualFX" Content="Visual Effects = Performans" FontSize="10" IsChecked="True" Margin="0,0,10,3"/>
                                       </WrapPanel>
                                     </StackPanel>
                                   </Border>
 
-                                  <!-- specialize: PERFORMANS -->
-                                  <Border Style="{StaticResource CardStyle}">
+                                  <!-- BROWSER OPTİMİZASYONLARI -->
+                                  <Border Style="{StaticResource CardStyle}" Margin="0,0,0,6">
                                     <StackPanel>
-                                      <TextBlock Text="PERFORMANS OPTİMİZASYONLARI — specialize" Style="{StaticResource CardTitle}"/>
+                                      <TextBlock Text="BROWSER OPTİMİZASYONLARI" Style="{StaticResource CardTitle}"/>
                                       <WrapPanel>
-                                        <CheckBox x:Name="ChkSpecGameDVR"     Content="Game DVR / Xbox Kaydı Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecGameMode"    Content="Game Mode Etkinleştir" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecTimerRes"    Content="Global Timer Resolution İste" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecSuperfetch"  Content="Superfetch / SysMain Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecMemCompr"    Content="Memory Compression Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecHWGPU"       Content="HW GPU Scheduling Etkinleştir" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecWER"         Content="Windows Error Reporting Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecNetThrottle" Content="Ağ Kısıtlamasını Kaldır" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecHpet"        Content="HPET Servisini Devre Dışı Bırak" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecTdrDelay"    Content="TDR Gecikmesini Artır (TdrDelay=10)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecPriCtrl"     Content="Win32PrioritySeparation = 38 (Programlar Öncelikli)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecMaint"       Content="Otomatik Bakım Devre Dışı" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecVisualFX"    Content="Visual Effects = Performans (VisualFXSetting=2)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
+                                        <CheckBox x:Name="ChkSpecBrowserEdge" Content="Edge: Arka Plan + Telemetry Kapat" FontSize="10" IsChecked="False" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecBrowserEdgePrivacy" Content="Edge: Gizlilik (Shopping, Collections, Rewards)" FontSize="10" IsChecked="False" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecBrowserChrome" Content="Chrome: Arka Plan + Telemetry Kapat" FontSize="10" IsChecked="False" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecBrowserChromePrivacy" Content="Chrome: Gizlilik (Sync, Autofill, Suggestions)" FontSize="10" IsChecked="False" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecBrowserBrave" Content="Brave: Arka Plan + Telemetry Kapat" FontSize="10" IsChecked="False" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecBrowserFirefox" Content="Firefox: Telemetry + Pocket Kapat" FontSize="10" IsChecked="False" Margin="0,0,10,3"/>
+                                        <CheckBox x:Name="ChkSpecBrowserFirefoxPrivacy" Content="Firefox: Gizlilik (Password Manager, Suggestions)" FontSize="10" IsChecked="False" Margin="0,0,10,3"/>
                                       </WrapPanel>
                                     </StackPanel>
                                   </Border>
 
-                                  <!-- specialize: KAPANMA & YANIT SÜRE -->
-                                  <Border Style="{StaticResource CardStyle}">
-                                    <StackPanel>
-                                      <TextBlock Text="KAPANMA HIZI &amp; YANIT SÜRESİ — specialize" Style="{StaticResource CardTitle}"/>
-                                      <WrapPanel>
-                                        <CheckBox x:Name="ChkSpecShutdownSpeed" Content="Hızlı Kapanma (WaitToKillApp=1ms, HungApp=1s)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecFTH"           Content="FTH (Fault Tolerant Heap) Devre Dışı Bırak" FontSize="11" IsChecked="False" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecVerboseStatus"  Content="VerboseStatus Kapat (sessiz kapanma)" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                        <CheckBox x:Name="ChkSpecShutdownReason" Content="Kapanma Nedeni Sormayı Kapat" FontSize="11" IsChecked="True" Margin="0,2,16,2"/>
-                                      </WrapPanel>
-                                    </StackPanel>
-                                  </Border>
+                                  <!-- KAPANMA & DİSK BÖLÜMLEME (Yan Yana) -->
+                                  <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                      <ColumnDefinition Width="*"/>
+                                      <ColumnDefinition Width="6"/>
+                                      <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
 
-                                  <!-- OTOMATİK DİSK BÖLÜMLEME -->
-                                  <Border Style="{StaticResource CardStyle}">
-                                    <StackPanel>
-                                      <TextBlock Text="OTOMATİK DİSK BÖLÜMLEME (windowsPE)" Style="{StaticResource CardTitle}"/>
-                                      <CheckBox x:Name="ChkAutoDisk" Content="Otomatik Disk Bölümleme Ekle (DiskConfiguration)" FontSize="11" IsChecked="False"/>
-                                      <StackPanel x:Name="PnlAutoDisk" Visibility="Collapsed" Margin="0,6,0,0">
-                                        <Grid Margin="0,0,0,6">
-                                          <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                          <TextBlock Text="Disk Numarası:" VerticalAlignment="Center" FontSize="11"/>
-                                          <TextBox x:Name="TxtDiskId" Style="{StaticResource RndTxt}" Text="0" Tag="0"/>
-                                        </Grid>
-                                        <Grid Margin="0,0,0,6">
-                                          <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                          <TextBlock Text="Bölümleme Tipi:" VerticalAlignment="Center" FontSize="11"/>
-                                          <ComboBox x:Name="CmbPartStyle" Height="22" FontSize="11">
-                                            <ComboBoxItem Content="GPT (UEFI)" IsSelected="True"/>
-                                            <ComboBoxItem Content="MBR (BIOS/Legacy)"/>
-                                          </ComboBox>
-                                        </Grid>
-                                        <Grid Margin="0,0,0,4">
-                                          <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                          <TextBlock Text="Sistem Bölümü MB:" VerticalAlignment="Center" FontSize="11"/>
-                                          <TextBox x:Name="TxtSysPart" Style="{StaticResource RndTxt}" Text="500" Tag="500"/>
-                                        </Grid>
-                                        <Grid>
-                                          <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                          <TextBlock Text="WinRE Bölümü MB:" VerticalAlignment="Center" FontSize="11"/>
-                                          <TextBox x:Name="TxtRePart" Style="{StaticResource RndTxt}" Text="512" Tag="512"/>
-                                        </Grid>
+                                    <!-- KAPANMA HIZI -->
+                                    <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                                      <StackPanel>
+                                        <TextBlock Text="KAPANMA HIZI" Style="{StaticResource CardTitle}"/>
+                                        <CheckBox x:Name="ChkSpecShutdownSpeed" Content="Hızlı Kapanma" FontSize="10" IsChecked="True" Margin="0,0,0,3"/>
+                                        <CheckBox x:Name="ChkSpecFTH" Content="FTH Devre Dışı" FontSize="10" IsChecked="False" Margin="0,0,0,3"/>
+                                        <CheckBox x:Name="ChkSpecVerboseStatus" Content="VerboseStatus Kapat" FontSize="10" IsChecked="True" Margin="0,0,0,3"/>
+                                        <CheckBox x:Name="ChkSpecShutdownReason" Content="Kapanma Nedeni Sorma" FontSize="10" IsChecked="True"/>
                                       </StackPanel>
-                                    </StackPanel>
-                                  </Border>
+                                    </Border>
+
+                                    <!-- OTOMATİK DİSK BÖLÜMLEME -->
+                                    <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                                      <StackPanel>
+                                        <TextBlock Text="OTOMATİK DİSK BÖLÜMLEME" Style="{StaticResource CardTitle}"/>
+                                        <CheckBox x:Name="ChkAutoDisk" Content="Otomatik Disk Bölümleme Ekle" FontSize="10" IsChecked="False" Margin="0,0,0,4"/>
+                                        <StackPanel x:Name="PnlAutoDisk" Visibility="Collapsed">
+                                          <Grid Margin="0,0,0,3">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="Disk No:" VerticalAlignment="Center" FontSize="10" Foreground="#6B7280"/>
+                                            <TextBox x:Name="TxtDiskId" Grid.Column="1" Style="{StaticResource RndTxt}" Text="0" Tag="0"/>
+                                          </Grid>
+                                          <Grid Margin="0,0,0,3">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="Tip:" VerticalAlignment="Center" FontSize="10" Foreground="#6B7280"/>
+                                            <ComboBox x:Name="CmbPartStyle" Grid.Column="1" Height="22" FontSize="10">
+                                              <ComboBoxItem Content="GPT (UEFI)" IsSelected="True"/>
+                                              <ComboBoxItem Content="MBR (BIOS)"/>
+                                            </ComboBox>
+                                          </Grid>
+                                          <Grid Margin="0,0,0,3">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="Sistem MB:" VerticalAlignment="Center" FontSize="10" Foreground="#6B7280"/>
+                                            <TextBox x:Name="TxtSysPart" Grid.Column="1" Style="{StaticResource RndTxt}" Text="500" Tag="500"/>
+                                          </Grid>
+                                          <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="WinRE MB:" VerticalAlignment="Center" FontSize="10" Foreground="#6B7280"/>
+                                            <TextBox x:Name="TxtRePart" Grid.Column="1" Style="{StaticResource RndTxt}" Text="512" Tag="512"/>
+                                          </Grid>
+                                        </StackPanel>
+                                      </StackPanel>
+                                    </Border>
+                                  </Grid>
 
                                   <!-- ÇIKTI -->
                                   <Border Style="{StaticResource CardStyle}">
                                     <StackPanel>
                                       <TextBlock Text="OLUŞTURULAN XML'İ KAYDET" Style="{StaticResource CardTitle}"/>
-                                      <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Kayıt Klasörü:" VerticalAlignment="Center" FontSize="11"/>
+                                      <Grid Margin="0,0,0,4">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="85"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Klasör:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
                                         <TextBox x:Name="TxtXmlSaveDir" Grid.Column="1" Style="{StaticResource RndTxt}" Tag="Kaydedilecek klasörü seçin..."/>
                                         <Button x:Name="BtnXmlSaveDir" Grid.Column="2" Content="Gözat" Style="{StaticResource BtnOutline}" Margin="6,0,0,0" Height="22"/>
                                       </Grid>
-                                      <Grid>
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                        <TextBlock Text="Dosya Adı:" VerticalAlignment="Center" FontSize="11"/>
-                                        <ComboBox x:Name="CmbXmlFileName" Height="22" FontSize="11">
+                                      <Grid Margin="0,4,0,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="85"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="Dosya Adı:" VerticalAlignment="Center" FontSize="11" Foreground="#6B7280"/>
+                                        <ComboBox x:Name="CmbXmlFileName" Grid.Column="1" Height="22" FontSize="10">
                                           <ComboBoxItem Content="Autounattend.xml" IsSelected="True"/>
                                           <ComboBoxItem Content="unattend.xml"/>
                                         </ComboBox>
@@ -1984,31 +2162,38 @@ function Select-Folder {
                                     </StackPanel>
                                   </Border>
 
-                                  <WrapPanel Margin="0,0,0,4">
-                                    <Button x:Name="BtnGenerateXml"   Content="&#x2699; XML Oluştur &amp; Kaydet" Style="{StaticResource BtnAccent}" Margin="0,0,8,0"/>
-                                    <Button x:Name="BtnPreviewXml"    Content="&#x1F4CB; Önizle"                   Style="{StaticResource BtnOutline}" Margin="0,0,8,0"/>
-                                    <Button x:Name="BtnResetBuilder"  Content="&#x1F504; Sıfırla"                  Style="{StaticResource BtnOutline}"/>
-                                  </WrapPanel>
+                                  <Border Background="White" CornerRadius="6" BorderBrush="#E5E7EB" BorderThickness="1" Padding="10,8,10,8" Margin="0,0,0,6">
+                                    <Grid>
+                                      <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                      </Grid.ColumnDefinitions>
+                                      <Button x:Name="BtnGenerateXml"   Grid.Column="0" Content="&#x2699; XML Oluştur &amp; Kaydet" Style="{StaticResource BtnAccent}" Margin="0,0,5,0" Height="30" Padding="0"/>
+                                      <Button x:Name="BtnPreviewXml"    Grid.Column="1" Content="&#x1F4CB; Önizle"                   Style="{StaticResource BtnOutline}" Margin="0,0,5,0" Height="30" Padding="0"/>
+                                      <Button x:Name="BtnResetBuilder"  Grid.Column="2" Content="&#x1F504; Sıfırla"                  Style="{StaticResource BtnOutline}" Margin="0" Height="30" Padding="0"/>
+                                    </Grid>
+                                  </Border>
 
                                 </StackPanel>
 
                                 <!-- ══ PANEL 2: XML UYGULA ══ -->
                                 <StackPanel x:Name="PnlXmlApply" Visibility="Collapsed">
-                                  <Border Style="{StaticResource CardStyle}">
+                                  <Border Style="{StaticResource CardStyle}" Padding="10,10,10,12">
                                     <StackPanel>
                                       <TextBlock Text="YANIT DOSYASI UYGULA" Style="{StaticResource CardTitle}"/>
-                                      <TextBlock Text="Bağlı imaja mevcut bir Autounattend.xml / unattend.xml dosyasını DISM ile uygular." FontSize="10" Foreground="#6B7280" Margin="0,0,0,8"/>
-                                      <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="100"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                      <TextBlock Text="Bağlı imaja mevcut bir Autounattend.xml / unattend.xml dosyasını DISM ile uygular." FontSize="10" Foreground="#6B7280" Margin="0,0,0,6"/>
+                                      <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="85"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                         <TextBlock Text="XML Dosyası:" VerticalAlignment="Center" FontSize="11"/>
                                         <TextBox x:Name="TxtUnattendXml" Grid.Column="1" Style="{StaticResource RndTxt}" Tag="Unattend.xml veya Autounattend.xml dosyasını seçin..."/>
                                         <Button x:Name="BtnChooseUnattendXml" Grid.Column="2" Content="..." Style="{StaticResource BtnOutline}" Margin="6,0,0,0" Height="22"/>
                                       </Grid>
                                     </StackPanel>
                                   </Border>
-                                  <WrapPanel Margin="0,0,0,4">
-                                    <Button x:Name="BtnApplyUnattendXml" Content="&#x1F4C1; XML'i İmaja Uygula" Style="{StaticResource BtnAccent}"/>
-                                  </WrapPanel>
+                                  <Border Background="White" CornerRadius="6" BorderBrush="#E5E7EB" BorderThickness="1" Padding="10,8,10,8" Margin="0,0,0,6">
+                                    <Button x:Name="BtnApplyUnattendXml" Content="&#x1F4C1; XML'i İmaja Uygula" Style="{StaticResource BtnAccent}" Height="30" Padding="0"/>
+                                  </Border>
                                 </StackPanel>
 
                                 <!-- ══ PANEL 3: XML ÖNİZLEME ══ -->
@@ -2024,10 +2209,16 @@ function Select-Folder {
                                       </ScrollViewer>
                                     </StackPanel>
                                   </Border>
-                                  <WrapPanel Margin="0,4,0,4">
-                                    <Button x:Name="BtnCopyXml"    Content="&#x1F4CB; Panoya Kopyala" Style="{StaticResource BtnOutline}" Margin="0,0,8,0"/>
-                                    <Button x:Name="BtnSaveXmlAs"  Content="&#x1F4BE; Farklı Kaydet"  Style="{StaticResource BtnOutline}"/>
-                                  </WrapPanel>
+                                  <Border Background="White" CornerRadius="6" BorderBrush="#E5E7EB" BorderThickness="1" Padding="10,8,10,8" Margin="0,4,0,6">
+                                    <Grid>
+                                      <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                      </Grid.ColumnDefinitions>
+                                      <Button x:Name="BtnCopyXml"    Grid.Column="0" Content="&#x1F4CB; Panoya Kopyala" Style="{StaticResource BtnOutline}" Margin="0,0,5,0" Height="30" Padding="0"/>
+                                      <Button x:Name="BtnSaveXmlAs"  Grid.Column="1" Content="&#x1F4BE; Farklı Kaydet"  Style="{StaticResource BtnOutline}" Margin="0" Height="30" Padding="0"/>
+                                    </Grid>
+                                  </Border>
                                 </StackPanel>
 
                               </StackPanel>
@@ -6651,6 +6842,71 @@ $PnlXmlBuilder       = $window.FindName("PnlXmlBuilder")
 $PnlXmlApply         = $window.FindName("PnlXmlApply")
 $PnlXmlPreview       = $window.FindName("PnlXmlPreview")
 
+# ── Preset Butonları & Özet ───────────────────────────
+$BtnPresetGaming      = $window.FindName("BtnPresetGaming")
+$BtnPresetSecurity    = $window.FindName("BtnPresetSecurity")
+$BtnPresetStandard    = $window.FindName("BtnPresetStandard")
+$BtnPresetOptimize    = $window.FindName("BtnPresetOptimize")
+$TxtSettingsSummary   = $window.FindName("TxtSettingsSummary")
+
+function Update-SettingsSummary {
+    $summary = @()
+    
+    # Windows sürümü ve mimari
+    $winVer = if ($RbWin11.IsChecked) { "Windows 11" } else { "Windows 10" }
+    $arch = if ($RbArchAmd64.IsChecked) { "x64" } elseif ($RbArchX86.IsChecked) { "x86" } else { "ARM64" }
+    $summary += "🖥️ $winVer ($arch)"
+    
+    # Defender durumu
+    $defenderCount = 0
+    if ($ChkDisableDefender.IsChecked) { $defenderCount++ }
+    if ($ChkDisableSmartScreen.IsChecked) { $defenderCount++ }
+    if ($ChkDisableFirewall.IsChecked) { $defenderCount++ }
+    if ($defenderCount -eq 0) {
+        $summary += "🛡️ Defender: Tam Aktif"
+    } elseif ($defenderCount -eq 3) {
+        $summary += "⚠️ Defender: Tamamen Kapalı"
+    } else {
+        $summary += "🛡️ Defender: Kısmi ($defenderCount/3 kapalı)"
+    }
+    
+    # Telemetri
+    if ($ChkDisableTelemetry.IsChecked) {
+        $summary += "📡 Telemetri: Kapalı"
+    }
+    
+    # Windows 11 bypass
+    if ($RbWin11.IsChecked) {
+        $bypassCount = 0
+        if ($ChkBypassTPM.IsChecked) { $bypassCount++ }
+        if ($ChkBypassSecureBoot.IsChecked) { $bypassCount++ }
+        if ($ChkBypassRAM.IsChecked) { $bypassCount++ }
+        if ($ChkBypassStorage.IsChecked) { $bypassCount++ }
+        if ($ChkBypassCPU.IsChecked) { $bypassCount++ }
+        if ($bypassCount -gt 0) {
+            $summary += "🔓 Bypass: $bypassCount/5 aktif"
+        }
+    }
+    
+    # Kullanıcı hesabı
+    $accType = if ($RbAccAdmin.IsChecked) { "Yönetici" } else { "Standart" }
+    if ($TxtAutoUsername.Text.Trim() -ne "") {
+        $summary += "👤 Kullanıcı: $($TxtAutoUsername.Text) ($accType)"
+    }
+    
+    # OOBE
+    $oobeCount = 0
+    if ($ChkHideEULA.IsChecked) { $oobeCount++ }
+    if ($ChkHideWireless.IsChecked) { $oobeCount++ }
+    if ($ChkHideOnlineAcc.IsChecked) { $oobeCount++ }
+    if ($ChkSkipOOBE.IsChecked) { $oobeCount++ }
+    if ($oobeCount -gt 0) {
+        $summary += "⚡ OOBE: $oobeCount adım atlanıyor"
+    }
+    
+    $TxtSettingsSummary.Text = $summary -join " • "
+}
+
 function Switch-AutoSetupPanel {
     $PnlXmlBuilder.Visibility  = [System.Windows.Visibility]::Collapsed
     $PnlXmlApply.Visibility    = [System.Windows.Visibility]::Collapsed
@@ -6662,6 +6918,372 @@ function Switch-AutoSetupPanel {
 $RbXmlBuilder.Add_Checked( { Switch-AutoSetupPanel })
 $RbXmlApply.Add_Checked(   { Switch-AutoSetupPanel })
 $RbXmlPreview.Add_Checked( { Switch-AutoSetupPanel })
+
+# ── Tüm Checkbox'ları Aktif Et ────────────────────────
+function Enable-AllCheckboxes {
+    # Defender
+    $ChkPeDefenderVbs.IsEnabled = $true
+    $ChkSpecDefenderOptimize.IsEnabled = $true
+    $ChkSpecDefenderPolicies.IsEnabled = $true
+    $ChkSpecDefenderServices.IsEnabled = $true
+    $ChkSpecDefenderMpEngine.IsEnabled = $true
+    $ChkSpecSecCenter.IsEnabled = $true
+    $ChkSpecTamperProt.IsEnabled = $true
+    
+    # UAC/VBS/Kernel
+    $ChkSpecUAC.IsEnabled = $true
+    $ChkSpecVBS.IsEnabled = $true
+    $ChkSpecKernelMit.IsEnabled = $true
+    $ChkSpecSCMPolicy.IsEnabled = $true
+    
+    # Gizlilik
+    $ChkSpecTelemetry.IsEnabled = $true
+    $ChkSpecBingSearch.IsEnabled = $true
+    $ChkSpecCortana.IsEnabled = $true
+    $ChkSpecAdId.IsEnabled = $true
+    $ChkSpecLocation.IsEnabled = $true
+    $ChkSpecBgApps.IsEnabled = $true
+    $ChkSpecDelivOpt.IsEnabled = $true
+    
+    # Performans
+    $ChkSpecPerfectPerf.IsEnabled = $true
+    $ChkSpecBrowserEdge.IsEnabled = $true
+    $ChkSpecBrowserEdgePrivacy.IsEnabled = $true
+    $ChkSpecBrowserChrome.IsEnabled = $true
+    $ChkSpecBrowserChromePrivacy.IsEnabled = $true
+    $ChkSpecBrowserBrave.IsEnabled = $true
+    $ChkSpecBrowserFirefox.IsEnabled = $true
+    $ChkSpecBrowserFirefoxPrivacy.IsEnabled = $true
+    $ChkSpecGameDVR.IsEnabled = $true
+    $ChkSpecGameMode.IsEnabled = $true
+    $ChkSpecTimerRes.IsEnabled = $true
+    $ChkSpecSuperfetch.IsEnabled = $true
+    $ChkSpecMemCompr.IsEnabled = $true
+    $ChkSpecHWGPU.IsEnabled = $true
+    $ChkSpecWER.IsEnabled = $true
+    $ChkSpecNetThrottle.IsEnabled = $true
+    $ChkSpecHpet.IsEnabled = $true
+    $ChkSpecTdrDelay.IsEnabled = $true
+    $ChkSpecPriCtrl.IsEnabled = $true
+    $ChkSpecMaint.IsEnabled = $true
+    $ChkSpecVisualFX.IsEnabled = $true
+    
+    # Kapanma
+    $ChkSpecShutdownSpeed.IsEnabled = $true
+    $ChkSpecFTH.IsEnabled = $true
+    $ChkSpecVerboseStatus.IsEnabled = $true
+    $ChkSpecShutdownReason.IsEnabled = $true
+}
+
+# ── Preset Fonksiyonları ──────────────────────────────
+function Apply-PresetGaming {
+    # Önce tüm checkbox'ları aktif yap
+    Enable-AllCheckboxes
+    
+    # OOBE - hızlı kurulum
+    $ChkHideEULA.IsChecked = $true
+    $ChkHideWireless.IsChecked = $true
+    $ChkHideOnlineAcc.IsChecked = $true
+    $ChkSkipMsAccount.IsChecked = $true
+    $ChkNetworkOther.IsChecked = $true
+    $CmbProtectPC.SelectedIndex = 2
+    
+    # Defender - kapalı (performans için) - ZORUNLU
+    $ChkPeDefenderVbs.IsChecked = $true
+    $ChkPeDefenderVbs.IsEnabled = $false
+    $ChkSpecDefenderOptimize.IsChecked = $false
+    $ChkSpecDefenderPolicies.IsChecked = $true
+    $ChkSpecDefenderPolicies.IsEnabled = $false
+    $ChkSpecDefenderServices.IsChecked = $true
+    $ChkSpecDefenderServices.IsEnabled = $false
+    $ChkSpecDefenderMpEngine.IsChecked = $true
+    $ChkSpecDefenderMpEngine.IsEnabled = $false
+    $ChkSpecSecCenter.IsChecked = $true
+    $ChkSpecTamperProt.IsChecked = $true
+    
+    # UAC/VBS - kapalı (performans için) - ZORUNLU
+    $ChkSpecUAC.IsChecked = $true
+    $ChkSpecUAC.IsEnabled = $false
+    $ChkSpecVBS.IsChecked = $true
+    $ChkSpecVBS.IsEnabled = $false
+    $ChkSpecKernelMit.IsChecked = $true
+    $ChkSpecKernelMit.IsEnabled = $false
+    $ChkSpecSCMPolicy.IsChecked = $false
+    
+    # Gizlilik - orta
+    $ChkSpecTelemetry.IsChecked = $true
+    $ChkSpecBingSearch.IsChecked = $true
+    $ChkSpecCortana.IsChecked = $true
+    $ChkSpecAdId.IsChecked = $false
+    $ChkSpecLocation.IsChecked = $false
+    $ChkSpecBgApps.IsChecked = $true
+    $ChkSpecDelivOpt.IsChecked = $true
+    
+    # Performans - maksimum (oyun için) - ZORUNLU
+    $ChkSpecPerfectPerf.IsChecked = $true
+    $ChkSpecPerfectPerf.IsEnabled = $false
+    $ChkSpecBrowserEdge.IsChecked = $true
+    $ChkSpecBrowserEdgePrivacy.IsChecked = $true
+    $ChkSpecBrowserChrome.IsChecked = $true
+    $ChkSpecBrowserChromePrivacy.IsChecked = $true
+    $ChkSpecBrowserBrave.IsChecked = $true
+    $ChkSpecBrowserFirefox.IsChecked = $true
+    $ChkSpecBrowserFirefoxPrivacy.IsChecked = $true
+    $ChkSpecGameDVR.IsChecked = $true
+    $ChkSpecGameDVR.IsEnabled = $false
+    $ChkSpecGameMode.IsChecked = $true
+    $ChkSpecGameMode.IsEnabled = $false
+    $ChkSpecTimerRes.IsChecked = $true
+    $ChkSpecTimerRes.IsEnabled = $false
+    $ChkSpecSuperfetch.IsChecked = $true
+    $ChkSpecMemCompr.IsChecked = $true
+    $ChkSpecHWGPU.IsChecked = $true
+    $ChkSpecHWGPU.IsEnabled = $false
+    $ChkSpecWER.IsChecked = $true
+    $ChkSpecNetThrottle.IsChecked = $true
+    $ChkSpecNetThrottle.IsEnabled = $false
+    $ChkSpecHpet.IsChecked = $true
+    $ChkSpecTdrDelay.IsChecked = $true
+    $ChkSpecPriCtrl.IsChecked = $true
+    $ChkSpecMaint.IsChecked = $true
+    $ChkSpecVisualFX.IsChecked = $true
+    
+    # Kapanma - hızlı
+    $ChkSpecShutdownSpeed.IsChecked = $true
+    $ChkSpecFTH.IsChecked = $true
+    $ChkSpecVerboseStatus.IsChecked = $false
+    $ChkSpecShutdownReason.IsChecked = $true
+    
+    Update-SettingsSummary
+}
+
+function Apply-PresetSecurity {
+    # Önce tüm checkbox'ları aktif yap
+    Enable-AllCheckboxes
+    
+    # OOBE - temel
+    $ChkHideEULA.IsChecked = $true
+    $ChkHideWireless.IsChecked = $false
+    $ChkHideOnlineAcc.IsChecked = $false
+    $ChkSkipMsAccount.IsChecked = $false
+    $ChkNetworkOther.IsChecked = $false
+    $CmbProtectPC.SelectedIndex = 0
+    
+    # Defender - tam aktif (güvenlik için) - ZORUNLU KAPALI
+    $ChkPeDefenderVbs.IsChecked = $false
+    $ChkPeDefenderVbs.IsEnabled = $false
+    $ChkSpecDefenderOptimize.IsChecked = $false
+    $ChkSpecDefenderPolicies.IsChecked = $false
+    $ChkSpecDefenderPolicies.IsEnabled = $false
+    $ChkSpecDefenderServices.IsChecked = $false
+    $ChkSpecDefenderServices.IsEnabled = $false
+    $ChkSpecDefenderMpEngine.IsChecked = $false
+    $ChkSpecDefenderMpEngine.IsEnabled = $false
+    $ChkSpecSecCenter.IsChecked = $false
+    $ChkSpecSecCenter.IsEnabled = $false
+    $ChkSpecTamperProt.IsChecked = $false
+    $ChkSpecTamperProt.IsEnabled = $false
+    
+    # UAC/VBS - aktif (güvenlik için) - ZORUNLU KAPALI
+    $ChkSpecUAC.IsChecked = $false
+    $ChkSpecUAC.IsEnabled = $false
+    $ChkSpecVBS.IsChecked = $false
+    $ChkSpecVBS.IsEnabled = $false
+    $ChkSpecKernelMit.IsChecked = $false
+    $ChkSpecKernelMit.IsEnabled = $false
+    $ChkSpecSCMPolicy.IsChecked = $false
+    
+    # Gizlilik - minimal
+    $ChkSpecTelemetry.IsChecked = $true
+    $ChkSpecBingSearch.IsChecked = $false
+    $ChkSpecCortana.IsChecked = $false
+    $ChkSpecAdId.IsChecked = $true
+    $ChkSpecLocation.IsChecked = $false
+    $ChkSpecBgApps.IsChecked = $false
+    $ChkSpecDelivOpt.IsChecked = $false
+    
+    # Performans - minimal (güvenlik öncelikli)
+    $ChkSpecPerfectPerf.IsChecked = $false
+    $ChkSpecGameDVR.IsChecked = $false
+    $ChkSpecGameMode.IsChecked = $false
+    $ChkSpecTimerRes.IsChecked = $false
+    $ChkSpecSuperfetch.IsChecked = $false
+    $ChkSpecMemCompr.IsChecked = $false
+    $ChkSpecHWGPU.IsChecked = $false
+    $ChkSpecWER.IsChecked = $false
+    $ChkSpecNetThrottle.IsChecked = $false
+    $ChkSpecHpet.IsChecked = $false
+    $ChkSpecTdrDelay.IsChecked = $false
+    $ChkSpecPriCtrl.IsChecked = $false
+    $ChkSpecMaint.IsChecked = $false
+    $ChkSpecVisualFX.IsChecked = $false
+    
+    # Kapanma - normal
+    $ChkSpecShutdownSpeed.IsChecked = $false
+    $ChkSpecFTH.IsChecked = $false
+    $ChkSpecVerboseStatus.IsChecked = $true
+    $ChkSpecShutdownReason.IsChecked = $false
+    
+    Update-SettingsSummary
+}
+
+function Apply-PresetStandard {
+    # Önce tüm checkbox'ları aktif yap
+    Enable-AllCheckboxes
+    
+    # OOBE - dengeli
+    $ChkHideEULA.IsChecked = $true
+    $ChkHideWireless.IsChecked = $false
+    $ChkHideOnlineAcc.IsChecked = $true
+    $ChkSkipMsAccount.IsChecked = $true
+    $ChkNetworkOther.IsChecked = $false
+    $CmbProtectPC.SelectedIndex = 1
+    
+    # Defender - dengeli
+    $ChkPeDefenderVbs.IsChecked = $false
+    $ChkSpecDefenderOptimize.IsChecked = $false
+    $ChkSpecDefenderPolicies.IsChecked = $true
+    $ChkSpecDefenderServices.IsChecked = $false
+    $ChkSpecDefenderMpEngine.IsChecked = $false
+    $ChkSpecSecCenter.IsChecked = $true
+    $ChkSpecTamperProt.IsChecked = $false
+    
+    # UAC/VBS - dengeli
+    $ChkSpecUAC.IsChecked = $false
+    $ChkSpecVBS.IsChecked = $true
+    $ChkSpecKernelMit.IsChecked = $false
+    $ChkSpecSCMPolicy.IsChecked = $false
+    
+    # Gizlilik - orta
+    $ChkSpecTelemetry.IsChecked = $true
+    $ChkSpecBingSearch.IsChecked = $true
+    $ChkSpecCortana.IsChecked = $true
+    $ChkSpecAdId.IsChecked = $true
+    $ChkSpecLocation.IsChecked = $false
+    $ChkSpecBgApps.IsChecked = $false
+    $ChkSpecDelivOpt.IsChecked = $true
+    
+    # Performans - seçici
+    $ChkSpecPerfectPerf.IsChecked = $false
+    $ChkSpecGameDVR.IsChecked = $true
+    $ChkSpecGameMode.IsChecked = $false
+    $ChkSpecTimerRes.IsChecked = $false
+    $ChkSpecSuperfetch.IsChecked = $false
+    $ChkSpecMemCompr.IsChecked = $false
+    $ChkSpecHWGPU.IsChecked = $true
+    $ChkSpecWER.IsChecked = $true
+    $ChkSpecNetThrottle.IsChecked = $false
+    $ChkSpecHpet.IsChecked = $false
+    $ChkSpecTdrDelay.IsChecked = $false
+    $ChkSpecPriCtrl.IsChecked = $false
+    $ChkSpecMaint.IsChecked = $true
+    $ChkSpecVisualFX.IsChecked = $false
+    
+    # Kapanma - normal
+    $ChkSpecShutdownSpeed.IsChecked = $true
+    $ChkSpecFTH.IsChecked = $false
+    $ChkSpecVerboseStatus.IsChecked = $true
+    $ChkSpecShutdownReason.IsChecked = $true
+    
+    Update-SettingsSummary
+}
+
+function Apply-PresetOptimize {
+    # Önce tüm checkbox'ları aktif yap
+    Enable-AllCheckboxes
+    
+    # OOBE - tam atlama
+    $ChkHideEULA.IsChecked = $true
+    $ChkHideWireless.IsChecked = $true
+    $ChkHideOnlineAcc.IsChecked = $true
+    $ChkSkipMsAccount.IsChecked = $true
+    $ChkNetworkOther.IsChecked = $true
+    $CmbProtectPC.SelectedIndex = 2
+    
+    # Defender - tamamen pasif (tüm checkbox'lar seçili) - ZORUNLU
+    $ChkPeDefenderVbs.IsChecked = $true
+    $ChkPeDefenderVbs.IsEnabled = $false
+    $ChkSpecDefenderOptimize.IsChecked = $false
+    $ChkSpecDefenderPolicies.IsChecked = $true
+    $ChkSpecDefenderPolicies.IsEnabled = $false
+    $ChkSpecDefenderServices.IsChecked = $true
+    $ChkSpecDefenderServices.IsEnabled = $false
+    $ChkSpecDefenderMpEngine.IsChecked = $true
+    $ChkSpecDefenderMpEngine.IsEnabled = $false
+    $ChkSpecSecCenter.IsChecked = $true
+    $ChkSpecSecCenter.IsEnabled = $false
+    $ChkSpecTamperProt.IsChecked = $true
+    $ChkSpecTamperProt.IsEnabled = $false
+    
+    # UAC/VBS - kapalı - ZORUNLU
+    $ChkSpecUAC.IsChecked = $true
+    $ChkSpecUAC.IsEnabled = $false
+    $ChkSpecVBS.IsChecked = $true
+    $ChkSpecVBS.IsEnabled = $false
+    $ChkSpecKernelMit.IsChecked = $true
+    $ChkSpecKernelMit.IsEnabled = $false
+    $ChkSpecSCMPolicy.IsChecked = $true
+    $ChkSpecSCMPolicy.IsEnabled = $false
+    
+    # Gizlilik - maksimum - ZORUNLU
+    $ChkSpecTelemetry.IsChecked = $true
+    $ChkSpecTelemetry.IsEnabled = $false
+    $ChkSpecBingSearch.IsChecked = $true
+    $ChkSpecBingSearch.IsEnabled = $false
+    $ChkSpecCortana.IsChecked = $true
+    $ChkSpecCortana.IsEnabled = $false
+    $ChkSpecAdId.IsChecked = $true
+    $ChkSpecLocation.IsChecked = $true
+    $ChkSpecBgApps.IsChecked = $true
+    $ChkSpecDelivOpt.IsChecked = $true
+    
+    # Performans - maksimum - ZORUNLU
+    $ChkSpecPerfectPerf.IsChecked = $true
+    $ChkSpecPerfectPerf.IsEnabled = $false
+    $ChkSpecBrowserEdge.IsChecked = $true
+    $ChkSpecBrowserEdgePrivacy.IsChecked = $true
+    $ChkSpecBrowserChrome.IsChecked = $true
+    $ChkSpecBrowserChromePrivacy.IsChecked = $true
+    $ChkSpecBrowserBrave.IsChecked = $true
+    $ChkSpecBrowserFirefox.IsChecked = $true
+    $ChkSpecBrowserFirefoxPrivacy.IsChecked = $true
+    $ChkSpecGameDVR.IsChecked = $true
+    $ChkSpecGameDVR.IsEnabled = $false
+    $ChkSpecGameMode.IsChecked = $true
+    $ChkSpecGameMode.IsEnabled = $false
+    $ChkSpecTimerRes.IsChecked = $true
+    $ChkSpecTimerRes.IsEnabled = $false
+    $ChkSpecSuperfetch.IsChecked = $true
+    $ChkSpecSuperfetch.IsEnabled = $false
+    $ChkSpecMemCompr.IsChecked = $true
+    $ChkSpecMemCompr.IsEnabled = $false
+    $ChkSpecHWGPU.IsChecked = $true
+    $ChkSpecHWGPU.IsEnabled = $false
+    $ChkSpecWER.IsChecked = $true
+    $ChkSpecNetThrottle.IsChecked = $true
+    $ChkSpecNetThrottle.IsEnabled = $false
+    $ChkSpecHpet.IsChecked = $true
+    $ChkSpecTdrDelay.IsChecked = $true
+    $ChkSpecPriCtrl.IsChecked = $true
+    $ChkSpecMaint.IsChecked = $true
+    $ChkSpecMaint.IsEnabled = $false
+    $ChkSpecVisualFX.IsChecked = $true
+    $ChkSpecVisualFX.IsEnabled = $false
+    
+    # Kapanma - hızlı - ZORUNLU
+    $ChkSpecShutdownSpeed.IsChecked = $true
+    $ChkSpecShutdownSpeed.IsEnabled = $false
+    $ChkSpecFTH.IsChecked = $true
+    $ChkSpecVerboseStatus.IsChecked = $false
+    $ChkSpecShutdownReason.IsChecked = $true
+    
+    Update-SettingsSummary
+}
+
+$BtnPresetGaming.Add_Click({ Apply-PresetGaming })
+$BtnPresetSecurity.Add_Click({ Apply-PresetSecurity })
+$BtnPresetStandard.Add_Click({ Apply-PresetStandard })
+$BtnPresetOptimize.Add_Click({ Apply-PresetOptimize })
 
 # ── Mimari & Platform ─────────────────────────────────
 $RbArchAmd64   = $window.FindName("RbArchAmd64")
@@ -6677,8 +7299,47 @@ function Get-SelectedArch {
     return "amd64"
 }
 
-$RbWin11.Add_Checked({  $PnlWin11Bypass.Visibility = [System.Windows.Visibility]::Visible   })
-$RbWin10.Add_Checked({  $PnlWin11Bypass.Visibility = [System.Windows.Visibility]::Collapsed })
+$RbWin11.Add_Checked({
+    $PnlWin11Bypass.Visibility = [System.Windows.Visibility]::Visible
+    
+    # Windows 11 seçildiğinde bypass ayarlarını otomatik işaretle
+    $ChkBypassTPM.IsChecked = $true
+    $ChkBypassSB.IsChecked = $true
+    $ChkBypassRAM.IsChecked = $true
+    $ChkBypassStorage.IsChecked = $true
+    $ChkBypassCPU.IsChecked = $true
+    
+    # x86 (32-bit) gizle - Windows 11 desteklemiyor
+    $RbArchX86.Visibility = [System.Windows.Visibility]::Collapsed
+    
+    # Eğer x86 seçiliyse, otomatik olarak x64'e geç
+    if ($RbArchX86.IsChecked) {
+        $RbArchAmd64.IsChecked = $true
+    }
+    
+    Update-SettingsSummary
+})
+
+$RbWin10.Add_Checked({
+    $PnlWin11Bypass.Visibility = [System.Windows.Visibility]::Collapsed
+    
+    # Windows 10 seçildiğinde bypass ayarlarını kaldır
+    $ChkBypassTPM.IsChecked = $false
+    $ChkBypassSB.IsChecked = $false
+    $ChkBypassRAM.IsChecked = $false
+    $ChkBypassStorage.IsChecked = $false
+    $ChkBypassCPU.IsChecked = $false
+    
+    # x86 (32-bit) göster - Windows 10 destekliyor
+    $RbArchX86.Visibility = [System.Windows.Visibility]::Visible
+    
+    Update-SettingsSummary
+})
+
+# Mimari değişikliklerinde özet güncelle
+$RbArchAmd64.Add_Checked({ Update-SettingsSummary })
+$RbArchX86.Add_Checked({ Update-SettingsSummary })
+$RbArchArm64.Add_Checked({ Update-SettingsSummary })
 
 # ── Dil & Bölge ───────────────────────────────────────
 $CmbUILanguage    = $window.FindName("CmbUILanguage")
@@ -6686,7 +7347,197 @@ $CmbSystemLocale  = $window.FindName("CmbSystemLocale")
 $CmbInputLocale   = $window.FindName("CmbInputLocale")
 $CmbTimeZone      = $window.FindName("CmbTimeZone")
 
+# UI Dili değiştiğinde diğer ayarları otomatik güncelle
+$CmbUILanguage.Add_SelectionChanged({
+    $selected = $CmbUILanguage.SelectedItem.Content.ToString()
+    $langCode = $selected.Split(' ')[0]  # "tr-TR (Türkçe)" -> "tr-TR"
+    
+    # Dil koduna göre eşleştirme tablosu
+    $languageMap = @{
+        'tr-TR' = @{
+            Keyboard = '041f:0000041f (Turkish Q)'
+            Locale = 'tr-TR (Türkçe)'
+            TimeZone = 'Turkey Standard Time'
+        }
+        'en-US' = @{
+            Keyboard = '0409:00000409 (US)'
+            Locale = 'en-US (English US)'
+            TimeZone = 'Pacific Standard Time'
+        }
+        'en-GB' = @{
+            Keyboard = '0809:00000809 (UK)'
+            Locale = 'en-GB (English UK)'
+            TimeZone = 'GMT Standard Time'
+        }
+        'de-DE' = @{
+            Keyboard = '0407:00000407 (German)'
+            Locale = 'de-DE (Deutsch)'
+            TimeZone = 'W. Europe Standard Time'
+        }
+        'fr-FR' = @{
+            Keyboard = '040c:0000040c (French)'
+            Locale = 'fr-FR (Français)'
+            TimeZone = 'W. Europe Standard Time'
+        }
+        'es-ES' = @{
+            Keyboard = '0c0a:0000040a (Spanish)'
+            Locale = 'es-ES (Español)'
+            TimeZone = 'W. Europe Standard Time'
+        }
+        'it-IT' = @{
+            Keyboard = '0410:00000410 (Italian)'
+            Locale = 'it-IT (Italiano)'
+            TimeZone = 'W. Europe Standard Time'
+        }
+        'pt-BR' = @{
+            Keyboard = '0416:00000416 (Portuguese BR)'
+            Locale = 'pt-BR (Português BR)'
+            TimeZone = 'E. South America Standard Time'
+        }
+        'pt-PT' = @{
+            Keyboard = '0816:00000816 (Portuguese PT)'
+            Locale = 'pt-PT (Português PT)'
+            TimeZone = 'GMT Standard Time'
+        }
+        'ru-RU' = @{
+            Keyboard = '0419:00000419 (Russian)'
+            Locale = 'ru-RU (Русский)'
+            TimeZone = 'Russian Standard Time'
+        }
+        'zh-CN' = @{
+            Keyboard = '0804:00000804 (Chinese Simplified)'
+            Locale = 'zh-CN (中文简体)'
+            TimeZone = 'China Standard Time'
+        }
+        'zh-TW' = @{
+            Keyboard = '0404:00000404 (Chinese Traditional)'
+            Locale = 'zh-TW (中文繁體)'
+            TimeZone = 'China Standard Time'
+        }
+        'ja-JP' = @{
+            Keyboard = '0411:00000411 (Japanese)'
+            Locale = 'ja-JP (日本語)'
+            TimeZone = 'Tokyo Standard Time'
+        }
+        'ko-KR' = @{
+            Keyboard = '0412:00000412 (Korean)'
+            Locale = 'ko-KR (한국어)'
+            TimeZone = 'Korea Standard Time'
+        }
+        'ar-SA' = @{
+            Keyboard = '0401:00000401 (Arabic 101)'
+            Locale = 'ar-SA (العربية)'
+            TimeZone = 'Arab Standard Time'
+        }
+        'pl-PL' = @{
+            Keyboard = '0415:00000415 (Polish)'
+            Locale = 'pl-PL (Polski)'
+            TimeZone = 'Central Europe Standard Time'
+        }
+        'nl-NL' = @{
+            Keyboard = '0413:00000413 (Dutch)'
+            Locale = 'nl-NL (Nederlands)'
+            TimeZone = 'W. Europe Standard Time'
+        }
+        'sv-SE' = @{
+            Keyboard = '041d:0000041d (Swedish)'
+            Locale = 'sv-SE (Svenska)'
+            TimeZone = 'W. Europe Standard Time'
+        }
+        'da-DK' = @{
+            Keyboard = '0406:00000406 (Danish)'
+            Locale = 'da-DK (Dansk)'
+            TimeZone = 'W. Europe Standard Time'
+        }
+        'fi-FI' = @{
+            Keyboard = '040b:0000040b (Finnish)'
+            Locale = 'fi-FI (Suomi)'
+            TimeZone = 'W. Europe Standard Time'
+        }
+        'no-NO' = @{
+            Keyboard = '0414:00000414 (Norwegian)'
+            Locale = 'no-NO (Norsk)'
+            TimeZone = 'W. Europe Standard Time'
+        }
+        'cs-CZ' = @{
+            Keyboard = '0405:00000405 (Czech)'
+            Locale = 'cs-CZ (Čeština)'
+            TimeZone = 'Central Europe Standard Time'
+        }
+        'hu-HU' = @{
+            Keyboard = '040e:0000040e (Hungarian)'
+            Locale = 'hu-HU (Magyar)'
+            TimeZone = 'Central Europe Standard Time'
+        }
+        'el-GR' = @{
+            Keyboard = '0408:00000408 (Greek)'
+            Locale = 'el-GR (Ελληνικά)'
+            TimeZone = 'E. Europe Standard Time'
+        }
+        'he-IL' = @{
+            Keyboard = '040d:0002040d (Hebrew Standard)'
+            Locale = 'he-IL (עברית)'
+            TimeZone = 'E. Europe Standard Time'
+        }
+        'th-TH' = @{
+            Keyboard = '041e:0000041e (Thai Kedmanee)'
+            Locale = 'th-TH (ไทย)'
+            TimeZone = 'China Standard Time'
+        }
+        'vi-VN' = @{
+            Keyboard = '042a:0000042a (Vietnamese)'
+            Locale = 'vi-VN (Tiếng Việt)'
+            TimeZone = 'China Standard Time'
+        }
+        'uk-UA' = @{
+            Keyboard = '0422:00020422 (Ukrainian Enhanced)'
+            Locale = 'uk-UA (Українська)'
+            TimeZone = 'E. Europe Standard Time'
+        }
+        'ro-RO' = @{
+            Keyboard = '0418:00010418 (Romanian Standard)'
+            Locale = 'ro-RO (Română)'
+            TimeZone = 'E. Europe Standard Time'
+        }
+        'bg-BG' = @{
+            Keyboard = '0402:00030402 (Bulgarian)'
+            Locale = 'bg-BG (Български)'
+            TimeZone = 'E. Europe Standard Time'
+        }
+    }
+    
+    if ($languageMap.ContainsKey($langCode)) {
+        $settings = $languageMap[$langCode]
+        
+        # Klavye ayarla
+        for ($i = 0; $i -lt $CmbInputLocale.Items.Count; $i++) {
+            if ($CmbInputLocale.Items[$i].Content -eq $settings.Keyboard) {
+                $CmbInputLocale.SelectedIndex = $i
+                break
+            }
+        }
+        
+        # System Locale ayarla
+        for ($i = 0; $i -lt $CmbSystemLocale.Items.Count; $i++) {
+            if ($CmbSystemLocale.Items[$i].Content -eq $settings.Locale) {
+                $CmbSystemLocale.SelectedIndex = $i
+                break
+            }
+        }
+        
+        # Saat Dilimi ayarla
+        for ($i = 0; $i -lt $CmbTimeZone.Items.Count; $i++) {
+            if ($CmbTimeZone.Items[$i].Content -eq $settings.TimeZone) {
+                $CmbTimeZone.SelectedIndex = $i
+                break
+            }
+        }
+    }
+})
+
 # ── Kullanıcı Hesabı ──────────────────────────────────
+$ChkEnableUserAccount = $window.FindName("ChkEnableUserAccount")
+$PnlUserAccount       = $window.FindName("PnlUserAccount")
 $TxtAutoUsername      = $window.FindName("TxtAutoUsername")
 $TxtAutoPassword      = $window.FindName("TxtAutoPassword")
 $TxtAutoComputerName  = $window.FindName("TxtAutoComputerName")
@@ -6695,18 +7546,49 @@ $RbAccStandard        = $window.FindName("RbAccStandard")
 $ChkAutoLogin         = $window.FindName("ChkAutoLogin")
 $ChkSkipMsAccount     = $window.FindName("ChkSkipMsAccount")
 
+$ChkEnableUserAccount.Add_Checked({
+    $PnlUserAccount.Visibility = [System.Windows.Visibility]::Visible
+})
+$ChkEnableUserAccount.Add_Unchecked({
+    $PnlUserAccount.Visibility = [System.Windows.Visibility]::Collapsed
+})
+
+# Kullanıcı adı değiştiğinde özet güncelle
+$TxtAutoUsername.Add_TextChanged({ Update-SettingsSummary })
+$RbAccAdmin.Add_Checked({ Update-SettingsSummary })
+$RbAccStandard.Add_Checked({ Update-SettingsSummary })
+
 # ── OOBE ──────────────────────────────────────────────
 $ChkHideEULA          = $window.FindName("ChkHideEULA")
 $ChkHideWireless      = $window.FindName("ChkHideWireless")
 $ChkHideOnlineAcc     = $window.FindName("ChkHideOnlineAcc")
 $ChkSkipOOBE          = $window.FindName("ChkSkipOOBE")
 $ChkNetworkOther      = $window.FindName("ChkNetworkOther")
+
+# OOBE checkbox'larına event handler ekle
+$ChkHideEULA.Add_Checked({ Update-SettingsSummary })
+$ChkHideEULA.Add_Unchecked({ Update-SettingsSummary })
+$ChkHideWireless.Add_Checked({ Update-SettingsSummary })
+$ChkHideWireless.Add_Unchecked({ Update-SettingsSummary })
+$ChkHideOnlineAcc.Add_Checked({ Update-SettingsSummary })
+$ChkHideOnlineAcc.Add_Unchecked({ Update-SettingsSummary })
+$ChkSkipOOBE.Add_Checked({ Update-SettingsSummary })
+$ChkSkipOOBE.Add_Unchecked({ Update-SettingsSummary })
 $CmbProtectPC         = $window.FindName("CmbProtectPC")
 
 # ── Ürün Anahtarı ─────────────────────────────────────
+$ChkEnableProductKey  = $window.FindName("ChkEnableProductKey")
+$PnlProductKey        = $window.FindName("PnlProductKey")
 $TxtAutoProductKey    = $window.FindName("TxtAutoProductKey")
 $ChkAcceptEula        = $window.FindName("ChkAcceptEula")
 $CmbKeyWillShowUI     = $window.FindName("CmbKeyWillShowUI")
+
+$ChkEnableProductKey.Add_Checked({
+    $PnlProductKey.Visibility = [System.Windows.Visibility]::Visible
+})
+$ChkEnableProductKey.Add_Unchecked({
+    $PnlProductKey.Visibility = [System.Windows.Visibility]::Collapsed
+})
 
 # ── Win11 Bypass ──────────────────────────────────────
 $ChkBypassTPM         = $window.FindName("ChkBypassTPM")
@@ -6715,15 +7597,103 @@ $ChkBypassRAM         = $window.FindName("ChkBypassRAM")
 $ChkBypassStorage     = $window.FindName("ChkBypassStorage")
 $ChkBypassCPU         = $window.FindName("ChkBypassCPU")
 
+# Bypass checkbox'larına event handler ekle
+$ChkBypassTPM.Add_Checked({ Update-SettingsSummary })
+$ChkBypassTPM.Add_Unchecked({ Update-SettingsSummary })
+$ChkBypassSB.Add_Checked({ Update-SettingsSummary })
+$ChkBypassSB.Add_Unchecked({ Update-SettingsSummary })
+$ChkBypassRAM.Add_Checked({ Update-SettingsSummary })
+$ChkBypassRAM.Add_Unchecked({ Update-SettingsSummary })
+$ChkBypassStorage.Add_Checked({ Update-SettingsSummary })
+$ChkBypassStorage.Add_Unchecked({ Update-SettingsSummary })
+$ChkBypassCPU.Add_Checked({ Update-SettingsSummary })
+$ChkBypassCPU.Add_Unchecked({ Update-SettingsSummary })
+
 # ── windowsPE Defender VBS ────────────────────────────
 $ChkPeDefenderVbs     = $window.FindName("ChkPeDefenderVbs")
 
 # ── specialize: Defender ──────────────────────────────
+$ChkSpecDefenderOptimize = $window.FindName("ChkSpecDefenderOptimize")
 $ChkSpecDefenderPolicies = $window.FindName("ChkSpecDefenderPolicies")
 $ChkSpecDefenderServices = $window.FindName("ChkSpecDefenderServices")
 $ChkSpecDefenderMpEngine = $window.FindName("ChkSpecDefenderMpEngine")
 $ChkSpecSecCenter        = $window.FindName("ChkSpecSecCenter")
 $ChkSpecTamperProt       = $window.FindName("ChkSpecTamperProt")
+
+# Defender Optimize seçildiğinde diğer Defender checkbox'larını kapat ve pasif yap
+$ChkSpecDefenderOptimize.Add_Checked({
+    # Diğer Defender seçeneklerini kapat
+    $ChkSpecDefenderPolicies.IsChecked = $false
+    $ChkSpecDefenderServices.IsChecked = $false
+    $ChkSpecDefenderMpEngine.IsChecked = $false
+    
+    # Diğer Defender seçeneklerini pasif yap (disabled)
+    $ChkSpecDefenderPolicies.IsEnabled = $false
+    $ChkSpecDefenderServices.IsEnabled = $false
+    $ChkSpecDefenderMpEngine.IsEnabled = $false
+    
+    Update-SettingsSummary
+})
+
+# Defender Optimize kaldırıldığında diğer checkbox'ları aktif yap
+$ChkSpecDefenderOptimize.Add_Unchecked({
+    # Diğer Defender seçeneklerini aktif yap (enabled)
+    $ChkSpecDefenderPolicies.IsEnabled = $true
+    $ChkSpecDefenderServices.IsEnabled = $true
+    $ChkSpecDefenderMpEngine.IsEnabled = $true
+    
+    Update-SettingsSummary
+})
+
+# Diğer Defender checkbox'ları seçildiğinde Defender Optimize'ı kapat ve pasif yap
+$ChkSpecDefenderPolicies.Add_Checked({
+    if ($ChkSpecDefenderPolicies.IsChecked -or $ChkSpecDefenderServices.IsChecked -or $ChkSpecDefenderMpEngine.IsChecked) {
+        $ChkSpecDefenderOptimize.IsChecked = $false
+        $ChkSpecDefenderOptimize.IsEnabled = $false
+        $ChkPeDefenderVbs.IsChecked = $true
+    }
+    Update-SettingsSummary
+})
+
+$ChkSpecDefenderServices.Add_Checked({
+    if ($ChkSpecDefenderPolicies.IsChecked -or $ChkSpecDefenderServices.IsChecked -or $ChkSpecDefenderMpEngine.IsChecked) {
+        $ChkSpecDefenderOptimize.IsChecked = $false
+        $ChkSpecDefenderOptimize.IsEnabled = $false
+        $ChkPeDefenderVbs.IsChecked = $true
+    }
+    Update-SettingsSummary
+})
+
+$ChkSpecDefenderMpEngine.Add_Checked({
+    if ($ChkSpecDefenderPolicies.IsChecked -or $ChkSpecDefenderServices.IsChecked -or $ChkSpecDefenderMpEngine.IsChecked) {
+        $ChkSpecDefenderOptimize.IsChecked = $false
+        $ChkSpecDefenderOptimize.IsEnabled = $false
+        $ChkPeDefenderVbs.IsChecked = $true
+    }
+    Update-SettingsSummary
+})
+
+# Diğer Defender checkbox'ları kaldırıldığında Defender Optimize'ı aktif yap
+$ChkSpecDefenderPolicies.Add_Unchecked({
+    if (-not $ChkSpecDefenderPolicies.IsChecked -and -not $ChkSpecDefenderServices.IsChecked -and -not $ChkSpecDefenderMpEngine.IsChecked) {
+        $ChkSpecDefenderOptimize.IsEnabled = $true
+    }
+    Update-SettingsSummary
+})
+
+$ChkSpecDefenderServices.Add_Unchecked({
+    if (-not $ChkSpecDefenderPolicies.IsChecked -and -not $ChkSpecDefenderServices.IsChecked -and -not $ChkSpecDefenderMpEngine.IsChecked) {
+        $ChkSpecDefenderOptimize.IsEnabled = $true
+    }
+    Update-SettingsSummary
+})
+
+$ChkSpecDefenderMpEngine.Add_Unchecked({
+    if (-not $ChkSpecDefenderPolicies.IsChecked -and -not $ChkSpecDefenderServices.IsChecked -and -not $ChkSpecDefenderMpEngine.IsChecked) {
+        $ChkSpecDefenderOptimize.IsEnabled = $true
+    }
+    Update-SettingsSummary
+})
 
 # ── specialize: UAC/VBS/Kernel ────────────────────────
 $ChkSpecUAC              = $window.FindName("ChkSpecUAC")
@@ -6740,8 +7710,22 @@ $ChkSpecLocation         = $window.FindName("ChkSpecLocation")
 $ChkSpecBgApps           = $window.FindName("ChkSpecBgApps")
 $ChkSpecDelivOpt         = $window.FindName("ChkSpecDelivOpt")
 
+# Telemetri checkbox'ına event handler ekle
+$ChkSpecTelemetry.Add_Checked({ Update-SettingsSummary })
+$ChkSpecTelemetry.Add_Unchecked({ Update-SettingsSummary })
+
 # ── specialize: Performans ────────────────────────────
+$ChkSpecPerfectPerf      = $window.FindName("ChkSpecPerfectPerf")
 $ChkSpecGameDVR          = $window.FindName("ChkSpecGameDVR")
+
+# ── specialize: Browser ────────────────────────────────
+$ChkSpecBrowserEdge          = $window.FindName("ChkSpecBrowserEdge")
+$ChkSpecBrowserEdgePrivacy   = $window.FindName("ChkSpecBrowserEdgePrivacy")
+$ChkSpecBrowserChrome        = $window.FindName("ChkSpecBrowserChrome")
+$ChkSpecBrowserChromePrivacy = $window.FindName("ChkSpecBrowserChromePrivacy")
+$ChkSpecBrowserBrave         = $window.FindName("ChkSpecBrowserBrave")
+$ChkSpecBrowserFirefox       = $window.FindName("ChkSpecBrowserFirefox")
+$ChkSpecBrowserFirefoxPrivacy= $window.FindName("ChkSpecBrowserFirefoxPrivacy")
 $ChkSpecGameMode         = $window.FindName("ChkSpecGameMode")
 $ChkSpecTimerRes         = $window.FindName("ChkSpecTimerRes")
 $ChkSpecSuperfetch       = $window.FindName("ChkSpecSuperfetch")
@@ -7138,6 +8122,229 @@ if ($peBypassCmds.Count -gt 0) {
     $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f')
     $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v IRQ8Priority /t REG_DWORD /d 1 /f')
     $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f')
+
+    # Defender Optimize (Minimal RAM) - Defender aktif ama minimum kaynak kullanımı
+    if ($ChkSpecDefenderOptimize.IsChecked) {
+        # Real-time protection kapalı (en çok RAM tüketen)
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableBehaviorMonitoring /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableOnAccessProtection /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableScanOnRealtimeEnable /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableIOAVProtection /t REG_DWORD /d 1 /f')
+        
+        # Scheduled scans kapalı
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableCatchupFullScan /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v DisableCatchupQuickScan /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\ScheduleScanDay" /v value /t REG_DWORD /d 8 /f')
+        
+        # Cloud protection kapalı
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SpyNetReporting /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" /v SubmitSamplesConsent /t REG_DWORD /d 2 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowCloudProtection" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\CloudBlockLevel" /v value /t REG_DWORD /d 0 /f')
+        
+        # Network inspection kapalı
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableIntrusionPreventionSystem /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableNetworkProtection" /v value /t REG_DWORD /d 0 /f')
+        
+        # Sample submission kapalı
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\SubmitSamplesConsent" /v value /t REG_DWORD /d 2 /f')
+        
+        # CPU priority düşük
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" /v LowCpuPriority /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\EnableLowCPUPriority" /v value /t REG_DWORD /d 1 /f')
+        
+        # Archive scanning minimal
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowArchiveScanning" /v value /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\Defender\AllowEmailScanning" /v value /t REG_DWORD /d 0 /f')
+        
+        # Signature updates minimal
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v SignatureUpdateInterval /t REG_DWORD /d 24 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v UpdateOnStartUp /t REG_DWORD /d 0 /f')
+    }
+
+    # Perfect Performance Registry (150+ optimizations) - Sadece ChkSpecPerfectPerf seçiliyse
+    if ($ChkSpecPerfectPerf.IsChecked) {
+        # CPU Scheduler & MMCSS
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Affinity" /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Background Only" /t REG_SZ /d "False" /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Clock Rate" /t REG_DWORD /d 10000 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "GPU Priority" /t REG_DWORD /d 8 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Priority" /t REG_DWORD /d 6 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Scheduling Category" /t REG_SZ /d "High" /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "SFIO Priority" /t REG_SZ /d "High" /f')
+        
+        # Power & Throttling
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v PowerThrottlingOff /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v PlatformAoAcOverride /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Throttle" /v PerfEnablePackageIdle /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Processor" /v CPPCEnable /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Processor" /v AllowPepPerfStates /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\pci\Parameters" /v ASPMOptOut /t REG_DWORD /d 1 /f')
+        
+        # Storage & Filesystem
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v NtfsDisableLastAccessUpdate /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v NtfsDisable8dot3NameCreation /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v DisableDeleteNotification /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisablePagingExecutive /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnablePrefetcher /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnableSuperfetch /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnableBootTrace /t REG_DWORD /d 0 /f')
+        
+        # Timers & GPU
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v DistributeTimers /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v SerializeTimerExpiration /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler" /v EnablePreemption /t REG_DWORD /d 1 /f')
+        
+        # Services Disable
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\DiagTrack" /v Start /t REG_DWORD /d 4 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\wbengine" /v Start /t REG_DWORD /d 4 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\lfsvc" /v Start /t REG_DWORD /d 4 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\diagsvc" /v Start /t REG_DWORD /d 4 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\GraphicsPerfSvc" /v Start /t REG_DWORD /d 4 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\MapsBroker" /v Start /t REG_DWORD /d 4 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\PcaSvc" /v Start /t REG_DWORD /d 4 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\SysMain" /v Start /t REG_DWORD /d 4 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\Themes" /v Start /t REG_DWORD /d 4 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\WSearch" /v Start /t REG_DWORD /d 4 /f')
+        
+        # Network & TCP/IP
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v Tcp1323Opts /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TcpWindowSize /t REG_DWORD /d 16776960 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v GlobalMaxTcpWindowSize /t REG_DWORD /d 16776960 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v EnablePMTUDiscovery /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TcpAckFrequency /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v TCPNoDelay /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v MaxUserPort /t REG_DWORD /d 65534 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Psched" /v NonBestEffortLimit /t REG_DWORD /d 0 /f')
+        
+        # UI & Explorer
+        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d "0" /f')
+        $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize" /v StartupDelayInMSec /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAnimations /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ListviewAlphaSelect /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKCU\Control Panel\Mouse" /v MouseHoverTime /t REG_SZ /d "1" /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v ServicesPipeTimeout /t REG_DWORD /d 60000 /f')
+        $specCmds.Add('reg add "HKCU\Control Panel\Desktop" /v AutoEndTasks /t REG_SZ /d "1" /f')
+        
+        # Fast Startup & Hibernation
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v HiberbootEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v HibernateEnabled /t REG_DWORD /d 0 /f')
+        
+        # Maintenance & Diagnostics
+        $specCmds.Add('reg add "HKLM\Software\Microsoft\Windows\ScheduledDiagnostics" /v EnabledExecution /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" /v MaintenanceDisabled /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\OptimalLayout" /v EnableAutoLayout /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" /v DODownloadMode /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\ReserveManager" /v ShippedWithReserves /t REG_DWORD /d 0 /f')
+    }
+
+    # Browser Optimizations - Edge Basic (Background + Telemetry)
+    if ($ChkSpecBrowserEdge.IsChecked) {
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v BackgroundModeEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v StartupBoostEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v SleepingTabsEnabled /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v EfficiencyModeEnabled /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v NetworkPredictionOptions /t REG_DWORD /d 2 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v QuicAllowed /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v ShowHomeButton /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v HomepageIsNewTabPage /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v HomepageLocation /t REG_SZ /d "https://www.google.com/" /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v NewTabPageLocation /t REG_SZ /d "about:blank" /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v DefaultSearchProviderEnabled /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v DefaultSearchProviderName /t REG_SZ /d "Google" /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v DefaultSearchProviderSearchURL /t REG_SZ /d "https://www.google.com/search?q={searchTerms}" /f')
+        # Edge ek optimizasyonlar
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v HardwareAccelerationModeEnabled /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v EdgeShoppingAssistantEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v EdgeCollectionsEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v PersonalizationReportingEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v UserFeedbackAllowed /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v ConfigureDoNotTrack /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v TrackingPrevention /t REG_DWORD /d 2 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v EdgeEnhanceImagesEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v EdgeFollowEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v EdgeWalletCheckoutEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v HubsSidebarEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v ShowMicrosoftRewards /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v DiagnosticData /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v MetricsReportingEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v SpotlightExperiencesAndRecommendationsEnabled /t REG_DWORD /d 0 /f')
+        
+        # Google Chrome
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v BackgroundModeEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v MetricsReportingEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v NetworkPredictionOptions /t REG_DWORD /d 2 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v QuicAllowed /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v ShowHomeButton /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v HomepageIsNewTabPage /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v HomepageLocation /t REG_SZ /d "https://www.google.com/" /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v DefaultSearchProviderEnabled /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v DefaultSearchProviderName /t REG_SZ /d "Google" /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v DefaultSearchProviderSearchURL /t REG_SZ /d "https://www.google.com/search?q={searchTerms}" /f')
+        # Chrome ek optimizasyonlar
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v HardwareAccelerationModeEnabled /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v PromotionalTabsEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v UserFeedbackAllowed /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v ChromeCleanupEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v ChromeCleanupReportingEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v SafeBrowsingProtectionLevel /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v UrlKeyedAnonymizedDataCollectionEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v SpellcheckEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v TranslateEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v AutofillAddressEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v AutofillCreditCardEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v SearchSuggestEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v AlternateErrorPagesEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v SavingBrowserHistoryDisabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v SyncDisabled /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Google\Chrome" /v SigninAllowed /t REG_DWORD /d 0 /f')
+        
+        # Brave
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\BraveSoftware\Brave" /v BackgroundModeEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\BraveSoftware\Brave" /v MetricsReportingEnabled /t REG_DWORD /d 0 /f')
+        # Brave ek optimizasyonlar
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\BraveSoftware\Brave" /v HardwareAccelerationModeEnabled /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\BraveSoftware\Brave" /v NetworkPredictionOptions /t REG_DWORD /d 2 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\BraveSoftware\Brave" /v SpellcheckEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\BraveSoftware\Brave" /v TranslateEnabled /t REG_DWORD /d 0 /f')
+        
+        # Firefox
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v DisableTelemetry /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v DisableFirefoxStudies /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v DisablePocket /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v SearchSuggestEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v NetworkPrediction /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v OverrideFirstRunPage /t REG_SZ /d "https://www.google.com/" /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v OverridePostUpdatePage /t REG_SZ /d "https://www.google.com/" /f')
+        # Firefox ek optimizasyonlar
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v DisableFormHistory /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v DisablePasswordReveal /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v DisableProfileImport /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v DisableSetDesktopBackground /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v DisableSystemAddonUpdate /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v DontCheckDefaultBrowser /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v HardwareAcceleration /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v OfferToSaveLogins /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v PasswordManagerEnabled /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox" /v UserMessaging /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\FirefoxHome" /v Search /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\FirefoxHome" /v TopSites /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\FirefoxHome" /v SponsoredTopSites /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\FirefoxHome" /v Highlights /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\FirefoxHome" /v Pocket /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\FirefoxHome" /v SponsoredPocket /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\FirefoxHome" /v Snippets /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\FirefoxSuggest" /v WebSuggestions /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\FirefoxSuggest" /v SponsoredSuggestions /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\FirefoxSuggest" /v ImproveSuggest /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\Preferences" /v "browser.cache.disk.enable" /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\Preferences" /v "browser.cache.memory.enable" /t REG_DWORD /d 1 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\Preferences" /v "browser.sessionstore.resume_from_crash" /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\Preferences" /v "browser.urlbar.suggest.searches" /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\Preferences" /v "extensions.getAddons.showPane" /t REG_DWORD /d 0 /f')
+        $specCmds.Add('reg add "HKLM\SOFTWARE\Policies\Mozilla\Firefox\Preferences" /v "extensions.htmlaboutaddons.recommendations.enabled" /t REG_DWORD /d 0 /f')
+    }
 
     $sb = [System.Text.StringBuilder]::new()
     $i = 1
@@ -10448,5 +11655,8 @@ $window.Add_Loaded({
         }
     } catch { }
 })
+
+# İlk özeti göster
+Update-SettingsSummary
 
 [void]$window.ShowDialog()
