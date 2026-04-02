@@ -3989,10 +3989,11 @@ function Load-MountIndexList {
             Write-Log "$($global:MountIndexItems.Count) index bulundu" -Level "OK"
             Set-Progress -Percent 0 -Message "Sistem Hazır."
             
-            # İlk index'i otomatik seç (checkbox ile)
+            # İlk index'i otomatik seç
             if ($global:MountIndexItems.Count -gt 0) {
                 $global:MountIndexItems[0].IsSelected = $true
                 $ListViewMountIndex.Items.Refresh()
+                $ListViewMountIndex.SelectedIndex = 0
                 
                 # Text box'ları güncelle
                 $TxtWimName.Text = $global:MountIndexItems[0].IndexName
@@ -4076,6 +4077,22 @@ $ListViewMountIndex.Add_Loaded({
             }
         }
     )
+})
+
+$ListViewMountIndex.Add_SelectionChanged({
+    $selected = $ListViewMountIndex.SelectedItem
+    if ($null -eq $selected) { return }
+    # Seçili satırı IsSelected ile senkronize et (tek seçim)
+    foreach ($item in $global:MountIndexItems) {
+        $item.IsSelected = ($item -eq $selected)
+    }
+    $TxtWimName.Text = $selected.IndexName
+    if ($TxtWimFile.Text -and (Test-Path $TxtWimFile.Text)) {
+        try {
+            $img = Get-WindowsImage -ImagePath $TxtWimFile.Text -Index $selected.IndexNumber -ErrorAction Stop
+            $TxtWimDesc.Text = $img.ImageDescription
+        } catch { $TxtWimDesc.Text = "" }
+    }
 })
 
 $BtnChooseFolder.Add_Click({
